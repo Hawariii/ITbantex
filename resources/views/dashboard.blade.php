@@ -59,12 +59,50 @@
                             <td colspan="8" class="text-center py-4 text-gray-500">
                                 Belum ada permintaan
                             </td>
+                            
                         </tr>
                         @endforelse
+                        <td class="p-2 mt-2 justify-start">
+    <div class="flex gap-3">
+        <a href="{{ route('permintaan.edit', $row->id) }}"
+           class="text-blue-600">
+            Edit
+        </a>
+
+        <form action="{{ route('permintaan.destroy', $row->id) }}"
+              method="POST"
+              onsubmit="return confirm('Yakin hapus item ini?')">
+            @csrf
+            @method('DELETE')
+
+            <button type="submit"
+                    class="text-red-600">
+                Delete
+            </button>
+        </form>
+    </div>
+</td>
+
                     </tbody>
                 </table>
             </div>
         </div>
-
     </div>
 </x-app-layout>
+         {{-- <td class="flex gap-2">
+    <a href="{{ route('permintaan.edit', $row->id) }}"
+       class="mt-2 px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700">
+        Edit
+    </a>
+
+    <form action="{{ route('permintaan.destroy', $row->id) }}"
+          method="POST"
+          onsubmit="return confirm('Yakin hapus item ini?')">
+        @csrf
+        @method('DELETE')
+
+        <button class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 hover:underline">
+            Hapus
+        </button>
+    </form>
+</td> --}}

@@ -7,45 +7,23 @@
 
             <form method="POST" action="{{ route('permintaan.store') }}" class="space-y-4">
                 @csrf
+            <div class="item border p-4 mb-3 rounded">
+                   <input type="text" name="supplier" placeholder="Supplier" required>
+                   <input type="date" name="arrival_date" required>
+            </div>
 
-                <div>
-                    <label class="block text-sm text-gray-600">Nama Barang</label>
-                    <input name="nama_barang" class="w-full border-gray-300 rounded-md shadow-sm">
-                </div>
-
-                <div>
-                    <label class="block text-sm text-gray-600">Merk / Type</label>
-                    <input name="merk_type" class="w-full border-gray-300 rounded-md shadow-sm">
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm text-gray-600">Jumlah</label>
-                        <input type="number" name="jumlah" class="w-full border-gray-300 rounded-md shadow-sm">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm text-gray-600">Harga Satuan</label>
-                        <input type="text" name="harga_satuan" class="w-full border-gray-300 rounded-md shadow-sm">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm text-gray-600">Supplier</label>
-                    <input name="supplier" class="w-full border-gray-300 rounded-md shadow-sm">
-                </div>
-
-                <div>
-                    <label class="block text-sm text-gray-600">Arrival Date</label>
-                    <input type="date" name="arrival_date" class="w-full border-gray-300 rounded-md shadow-sm">
-                </div>
-
-                <div>
-                    <label class="block text-sm text-gray-600">Keterangan</label>
-                    <textarea name="keterangan" rows="3" class="w-full border-gray-300 rounded-md shadow-sm"></textarea>
-                </div>
-
-                <div class="flex justify-end">
+    <div id="items">
+        <div class="item border p-4 mb-3 rounded">
+            <input type="text" name="nama_barang[]" placeholder="Nama Barang">
+            <input type="text" name="merk_type[]" placeholder="Merk / Type">
+            <input type="number" name="jumlah[]" placeholder="Jumlah">
+            <input type="text" name="harga_satuan[]" placeholder="Harga Satuan">
+        </div>
+    </div>
+                <div class="flex items-center justify-between mt-4">
+                     <button type="button" onclick="addItem()" class="pd-4 px-6 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700">
+                       + Tambah Barang
+                    </button>
                     <button class="px-6 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700">
                         Simpan
                     </button>
@@ -53,4 +31,13 @@
             </form>
         </div>
     </div>
+<script>
+    function addItem() {
+    const items = document.getElementById('items');
+    const clone = items.children[0].cloneNode(true);
+    clone.querySelectorAll('input').forEach(i => i.value = '');
+    items.appendChild(clone);
+    }
+</script>
+
 </x-app-layout>

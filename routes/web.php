@@ -49,3 +49,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/permintaan', [PermintaanBarangController::class, 'store'])
         ->name('permintaan.store');
 });
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/permintaan/{id}/edit', [PermintaanBarangController::class, 'edit'])
+        ->name('permintaan.edit');
+
+    Route::put('/permintaan/{id}', [PermintaanBarangController::class, 'update'])
+        ->name('permintaan.update');
+
+    Route::delete('/permintaan/{id}', [PermintaanBarangController::class, 'destroy'])
+        ->name('permintaan.destroy');
+});
