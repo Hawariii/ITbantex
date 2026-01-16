@@ -62,27 +62,6 @@
                             
                         </tr>
                         @endforelse
-                        <td class="p-2 mt-2 justify-start">
-    <div class="flex gap-3">
-        <a href="{{ route('permintaan.edit', $row->id) }}"
-           class="text-blue-600">
-            Edit
-        </a>
-
-        <form action="{{ route('permintaan.destroy', $row->id) }}"
-              method="POST"
-              onsubmit="return confirm('Yakin hapus item ini?')">
-            @csrf
-            @method('DELETE')
-
-            <button type="submit"
-                    class="text-red-600">
-                Delete
-            </button>
-        </form>
-    </div>
-</td>
-
                     </tbody>
                 </table>
             </div>

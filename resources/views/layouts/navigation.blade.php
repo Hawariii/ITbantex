@@ -18,7 +18,9 @@
                     <x-nav-link :href="route('permintaan.create')" :active="request()->routeIs('permintaan.create')">
                         {{__('Permintaan Barang')}}
                     </x-nav-link>
-
+                     <x-nav-link :href="route('permintaan.manage')" :active="request()->routeIs('permintaan.manage')">
+                        {{__('Manage Permintaan')}}
+                    </x-nav-link>
                 </div>
             </div>
 

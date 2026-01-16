@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PermintaanBarang;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PermintaanExport;
+
 
 class PermintaanBarangController extends Controller{
 
@@ -83,5 +86,23 @@ public function destroy($id)
 
     return redirect()->route('dashboard')
         ->with('success', 'Item berhasil dihapus');
+}
+
+public function manage()
+{
+    $data = PermintaanBarang::latest()->get();
+    return view('permintaan.manage', compact('data'));
+}
+
+public function exportExcel(Request $request)
+{
+    $request->validate([
+        'ids' => 'required|array',
+        'ids.*' => 'integer|exists:permintaan_barangs,id',
+    ]);
+
+    $ids = $request->input('ids');
+
+    return Excel::download(new PermintaanExport($ids), 'permintaan_barang.xlsx');
 }
 }

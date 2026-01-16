@@ -60,3 +60,14 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/permintaan/{id}', [PermintaanBarangController::class, 'destroy'])
         ->name('permintaan.destroy');
 });
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/manage', [PermintaanBarangController::class, 'manage'])
+        ->name('permintaan.manage');
+    
+    Route::post('/permintaan/export-excel', [PermintaanBarangController::class, 'exportExcel'])
+     ->name('permintaan.exportExcel');
+
+});
+
