@@ -96,13 +96,14 @@ public function manage()
 
 public function exportExcel(Request $request)
 {
-    $request->validate([
-        'ids' => 'required|array',
-        'ids.*' => 'integer|exists:permintaan_barangs,id',
-    ]);
+    if (!$request->ids) {
+        return back()->with('error', 'Pilih minimal 1 data');
+    }
 
-    $ids = $request->input('ids');
-
-    return Excel::download(new PermintaanExport($ids), 'permintaan_barang.xlsx');
+    return Excel::download(
+        new PermintaanExport($request->ids),
+        'permintaan_barang.xlsx'
+    );
 }
+
 }

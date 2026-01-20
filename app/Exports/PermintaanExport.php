@@ -1,44 +1,61 @@
 <?php
+
 namespace App\Exports;
 
 use App\Models\PermintaanBarang;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\BeforeWriting;
+use Maatwebsite\Excel\Files\LocalTemporaryFile;
+use Maatwebsite\Excel\Excel;
 
-class PermintaanExport implements FromCollection, WithMapping, WithHeadings
+class PermintaanExport implements WithEvents
 {
     protected $ids;
 
-    public function __construct(array $ids)
+    public function __construct($ids)
     {
         $this->ids = $ids;
     }
 
-    public function collection()
-    {
-        return PermintaanBarang::whereIn('id', $this->ids)->get();
-    }
-
-    public function map($row): array
+    public function registerEvents(): array
     {
         return [
-            $row->nama_barang,    // B
-            $row->merk_type,      // D
-            $row->jumlah,         // E
-            $row->harga_satuan,   // G
-            $row->total,          // H
-            $row->supplier,       // I
-            $row->arrival_date,   // J
-            $row->keterangan,     // K
-            $row->created_at->format('d-m-Y'), // J35/K2 nanti bisa adjust
-        ];
-    }
+            BeforeWriting::class => function (BeforeWriting $event) {
 
-    public function headings(): array
-    {
-        return [
-            'Nama Barang', 'Merk/Type', 'Jumlah', 'Harga Satuan', 'Subtotal', 'Supplier', 'Arrival Date', 'Keterangan', 'Created At'
+                $template = storage_path('app/templates/form_permintaan.xlsx');
+
+                $event->writer->reopen(
+                    new LocalTemporaryFile($template),
+                    Excel::XLSX
+                );
+
+                $sheet = $event->writer
+                    ->getSheetByIndex(0)
+                    ->getDelegate();
+
+                $data = PermintaanBarang::whereIn('id', $this->ids)->get();
+
+                $row = 11;
+                $grandTotal = 0;
+
+                foreach ($data as $item) {
+                    $sheet->setCellValue("B{$row}", $item->nama_barang);
+                    $sheet->setCellValue("D{$row}", $item->merk_type);
+                    $sheet->setCellValue("E{$row}", $item->jumlah);
+                    $sheet->setCellValue("G{$row}", $item->harga_satuan);
+                    $sheet->setCellValue("H{$row}", $item->total);
+                    $sheet->setCellValue("I{$row}", $item->supplier);
+                    $sheet->setCellValue("J{$row}", $item->arrival_date);
+                    $sheet->setCellValue("K{$row}", $item->keterangan);
+
+                    $grandTotal += $item->total;
+                    $row++;
+                }
+
+                $sheet->setCellValue("H33", $grandTotal);
+                $sheet->setCellValue("K2", now()->format('d-m-Y'));
+                $sheet->setCellValue("J35",'Sentul,' .now()->format("d-m-Y"));
+            }
         ];
     }
 }
