@@ -100,10 +100,12 @@ public function exportExcel(Request $request)
         return back()->with('error', 'Pilih minimal 1 data');
     }
 
+    // 🔑 ambil doc no dari form
+    $docNo = $request->doc_no;
+
     return Excel::download(
-        new PermintaanExport($request->ids),
+        new PermintaanExport($request->ids, $docNo),
         'permintaan_barang.xlsx'
     );
 }
-
 }

@@ -12,7 +12,7 @@
     </div>
 
     <!-- FORM PRINT -->
-    <form method="POST" action="{{ route('permintaan.exportExcel') }}">
+    <form id="exportForm" method="POST" action="{{ route('permintaan.exportExcel') }}">
     @csrf
 
         <div class="bg-white shadow rounded-lg p-6">
@@ -21,10 +21,12 @@
                     Permintaan Barang
                 </h2>
 
-                <button type="submit"
-                        class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700">
-                    Export to Excel
+                <button type="button"
+                onclick="openExportModal()"
+                class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700">
+                Export to Excel
                 </button>
+
             </div>
 
             <div class="overflow-x-auto">
@@ -85,6 +87,42 @@
                     </tbody>
                 </table>
             </div>
+            <!-- EXPORT MODAL -->
+<div id="exportModal"
+     class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+
+    <div class="bg-white w-full max-w-sm rounded-lg shadow-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+            Export Excel
+        </h3>
+        <p class="text-sm text-gray-500 mb-4">
+            Masukkan Document Number
+        </p>
+
+        <div class="space-y-4">
+            <input type="text"
+                   name="doc_no"
+                   form="exportForm"
+                   required
+                   placeholder="Contoh: NO/Bulan/Tahun = 130126"
+                   class="w-full border rounded-md px-3 py-2 text-sm focus:ring focus:ring-gray-200">
+
+            <div class="flex justify-end gap-2">
+                <button type="button"
+                        onclick="closeExportModal()"
+                        class="px-4 py-2 text-sm rounded-md border">
+                    Batal
+                </button>
+
+                <button type="submit"
+                        form="exportForm"
+                        class="px-4 py-2 text-sm bg-gray-800 text-white rounded-md hover:bg-gray-700">
+                    Export
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
         </div>
     </form>
 
@@ -112,5 +150,21 @@ document.getElementById('checkAll')?.addEventListener('change', function () {
         cb.checked = this.checked;
     });
 });
+
+   function openExportModal() {
+    const checked = document.querySelectorAll('input[name="ids[]"]:checked');
+    if (checked.length === 0) {
+        alert('Pilih minimal 1 data untuk di-export');
+        return;
+    }
+
+    document.getElementById('exportModal').classList.remove('hidden');
+    document.getElementById('exportModal').classList.add('flex');
+}
+
+function closeExportModal() {
+    document.getElementById('exportModal').classList.add('hidden');
+    document.getElementById('exportModal').classList.remove('flex');
+}
 </script>
 </x-app-layout>

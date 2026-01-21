@@ -11,10 +11,12 @@ use Maatwebsite\Excel\Excel;
 class PermintaanExport implements WithEvents
 {
     protected $ids;
+    protected $docNo;
 
-    public function __construct($ids)
+    public function __construct($ids, $docNo)
     {
         $this->ids = $ids;
+          $this->docNo = $docNo;
     }
 
     public function registerEvents(): array
@@ -55,6 +57,7 @@ class PermintaanExport implements WithEvents
                 $sheet->setCellValue("H33", $grandTotal);
                 $sheet->setCellValue("K2", now()->format('d-m-Y'));
                 $sheet->setCellValue("J35",'Sentul,' .now()->format("d-m-Y"));
+                $sheet->setCellValue('K4', $this->docNo);
             }
         ];
     }
