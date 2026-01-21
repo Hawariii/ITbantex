@@ -72,7 +72,7 @@ public function update(Request $request, $id)
         'keterangan'   => $request->keterangan,
     ]);
 
-    return redirect()->route('dashboard')
+    return redirect()->route('permintaan.manage')
         ->with('success', 'Item berhasil diupdate');
 }
 
@@ -84,7 +84,7 @@ public function destroy($id)
 
     $item->delete();
 
-    return redirect()->route('dashboard')
+    return redirect()->route('permintaan.manage')
         ->with('success', 'Item berhasil dihapus');
 }
 
