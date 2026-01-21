@@ -4,7 +4,7 @@
         <!-- Header -->
         <div class="bg-white shadow rounded-lg p-6">
             <h1 class="text-2xl font-semibold text-gray-800">
-                Dashboard ITbantex
+                Dashboard Bantex
             </h1>
             <p class="text-gray-500 text-sm">
                 Ringkasan permintaan barang Anda
@@ -68,20 +68,3 @@
         </div>
     </div>
 </x-app-layout>
-         {{-- <td class="flex gap-2">
-    <a href="{{ route('permintaan.edit', $row->id) }}"
-       class="mt-2 px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700">
-        Edit
-    </a>
-
-    <form action="{{ route('permintaan.destroy', $row->id) }}"
-          method="POST"
-          onsubmit="return confirm('Yakin hapus item ini?')">
-        @csrf
-        @method('DELETE')
-
-        <button class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 hover:underline">
-            Hapus
-        </button>
-    </form>
-</td> --}}
