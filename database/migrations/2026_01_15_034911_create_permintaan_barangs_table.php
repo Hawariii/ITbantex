@@ -6,29 +6,27 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
-{
-    Schema::create('permintaan_barangs', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-        $table->string('nama_barang');
-        $table->string('merk_type');
-        $table->integer('jumlah');
-        $table->bigInteger('harga_satuan', 15, 2);
-        $table->bigInteger('total', 15, 2);
-        $table->string('supplier');
-        $table->date('arrival_date');
-        $table->text('keterangan')->nullable();
-        $table->timestamps(); // created_at dipakai sebagai created date
-    });
-}
+    {
+        Schema::create('permintaan_barangs', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
-    /**
-     * Reverse the migrations.
-     */
+            $table->string('nama_barang');
+            $table->string('merk_type');
+            $table->integer('jumlah');
+
+            $table->unsignedBigInteger('harga_satuan');
+            $table->unsignedBigInteger('total');
+
+            $table->string('supplier');
+            $table->date('arrival_date');
+            $table->text('keterangan')->nullable();
+
+            $table->timestamps();
+        });
+    }
+
     public function down(): void
     {
         Schema::dropIfExists('permintaan_barangs');

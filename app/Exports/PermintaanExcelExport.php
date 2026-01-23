@@ -5,10 +5,10 @@ namespace App\Exports;
 use App\Models\PermintaanBarang;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeWriting;
-use Maatwebsite\Excel\Files\LocalTemporaryFile;
 use Maatwebsite\Excel\Excel;
+use Maatwebsite\Excel\Files\LocalTemporaryFile;
 
-class PermintaanExport implements WithEvents
+class PermintaanExcelExport implements WithEvents
 {
     protected $ids;
     protected $docNo;
@@ -16,7 +16,7 @@ class PermintaanExport implements WithEvents
     public function __construct($ids, $docNo)
     {
         $this->ids = $ids;
-          $this->docNo = $docNo;
+        $this->docNo = $docNo;
     }
 
     public function registerEvents(): array
@@ -31,9 +31,7 @@ class PermintaanExport implements WithEvents
                     Excel::XLSX
                 );
 
-                $sheet = $event->writer
-                    ->getSheetByIndex(0)
-                    ->getDelegate();
+                $sheet = $event->writer->getSheetByIndex(0)->getDelegate();
 
                 $data = PermintaanBarang::whereIn('id', $this->ids)->get();
 
@@ -55,9 +53,9 @@ class PermintaanExport implements WithEvents
                 }
 
                 $sheet->setCellValue("H33", $grandTotal);
-                $sheet->setCellValue("K2", now()->format('d-m-Y'));
-                $sheet->setCellValue("J35",'Sentul,' .now()->format("d-m-Y"));
-                $sheet->setCellValue('K4', $this->docNo);
+                $sheet->setCellValue("K4", $this->docNo);
+                $sheet->setCellValue("J35", 'Sentul, ' . now()->format('d/m/Y'));
+                $sheet->setCellValue("K2",  now()->format('d/m/Y'));
             }
         ];
     }

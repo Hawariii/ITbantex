@@ -75,7 +75,7 @@
                 </button>
 
                 <button type="submit"
-                        class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700">
+                        class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-100 transition">
                     Simpan
                 </button>
             </div>

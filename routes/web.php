@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Models\PermintaanBarang;
 use App\Http\Controllers\PermintaanBarangController;
+use App\Http\Controllers\HistoryController;
+
 
 Route::get('/', function () {
     return view('auth.login');
@@ -68,6 +70,13 @@ Route::middleware(['auth'])->group(function () {
     
     Route::post('/permintaan/export-excel', [PermintaanBarangController::class, 'exportExcel'])
      ->name('permintaan.exportExcel');
-
 });
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
+    Route::get('/history/{id}', [HistoryController::class, 'show'])->name('history.show');
+    Route::post('/history/{id}/reprint', [HistoryController::class, 'reprint'])->name('history.reprint');
+    Route::delete('/history/{id}', [HistoryController::class, 'destroy'])->name('history.destroy');
+});
+
 

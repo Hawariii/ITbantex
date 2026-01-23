@@ -5,7 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\PermintaanBarang;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\PermintaanExport;
+use App\Exports\PermintaanExcelExport;
+use App\Models\PermintaanExportItem;
+use App\Models\PermintaanExport;
+use Illuminate\Support\Facades\DB;
+
 
 
 class PermintaanBarangController extends Controller{
@@ -34,7 +38,7 @@ public function store(Request $request)
         ]);
     }
 
-    return redirect()->route('dashboard')->with('success', 'Permintaan berhasil disimpan');
+    return redirect()->route('permintaan.manage')->with('success', 'Permintaan berhasil disimpan');
 }
 
 public function edit($id)
@@ -90,22 +94,60 @@ public function destroy($id)
 
 public function manage()
 {
-    $data = PermintaanBarang::latest()->get();
+    $data = PermintaanBarang::where('user_id', auth()->id())->get();
     return view('permintaan.manage', compact('data'));
 }
 
 public function exportExcel(Request $request)
 {
-    if (!$request->ids) {
-        return back()->with('error', 'Pilih minimal 1 data');
+    $request->validate([
+        'doc_no' => 'required|string|max:100',
+        'ids'    => 'required|array',
+    ]);
+
+    $docNo = $request->doc_no;
+    $ids   = $request->ids;
+
+    $items = PermintaanBarang::whereIn('id', $ids)
+        ->where('user_id', auth()->id())
+        ->get();
+
+    if ($items->isEmpty()) {
+        return back()->with('error', 'Data tidak valid / bukan milik kamu');
     }
 
-    // 🔑 ambil doc no dari form
-    $docNo = $request->doc_no;
+    DB::transaction(function () use ($items, $docNo) {
+
+        $export = PermintaanExport::create([
+            'user_id'     => auth()->id(),
+            'doc_no'      => $docNo,
+            'lokasi'      => 'Sentul',
+            'item_count'  => $items->count(),
+            'grand_total' => $items->sum('total'),
+            'exported_at' => now(),
+        ]);
+
+        foreach ($items as $item) {
+            PermintaanExportItem::create([
+                'export_id'            => $export->id,
+                'permintaan_barang_id' => $item->id,
+
+                'nama_barang'  => $item->nama_barang,
+                'merk_type'    => $item->merk_type,
+                'jumlah'       => $item->jumlah,
+                'harga_satuan' => $item->harga_satuan,
+                'total'        => $item->total,
+                'supplier'     => $item->supplier,
+                'arrival_date' => $item->arrival_date,
+                'keterangan'   => $item->keterangan,
+            ]);
+        }
+    });
 
     return Excel::download(
-        new PermintaanExport($request->ids, $docNo),
-        'permintaan_barang.xlsx'
+        new PermintaanExcelExport($ids, $docNo),
+        $docNo . '.xlsx'
     );
 }
+
 }

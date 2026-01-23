@@ -21,6 +21,9 @@
                      <x-nav-link :href="route('permintaan.manage')" :active="request()->routeIs('permintaan.manage')">
                         {{__('Manage Permintaan')}}
                     </x-nav-link>
+                    <x-nav-link :href="route('history.index')" :active="request()->routeIs('history.index')">
+                        {{__('History Export')}}
+                    </x-nav-link>
                 </div>
             </div>
 
