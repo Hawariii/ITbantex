@@ -10,12 +10,19 @@ return new class extends Migration
     {
         Schema::create('permintaan_barangs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+
+            $table->foreignId('user_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            // ✅ doc_no wajib ada sejak create
+            $table->string('doc_no');
 
             $table->string('nama_barang');
             $table->string('merk_type');
             $table->integer('jumlah');
 
+            // rupiah: simpan angka bulat (tanpa koma)
             $table->unsignedBigInteger('harga_satuan');
             $table->unsignedBigInteger('total');
 
@@ -24,6 +31,9 @@ return new class extends Migration
             $table->text('keterangan')->nullable();
 
             $table->timestamps();
+
+            // ✅ biar cepat grouping per user + doc_no
+            $table->index(['user_id', 'doc_no']);
         });
     }
 
