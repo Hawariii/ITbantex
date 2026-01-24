@@ -143,15 +143,41 @@ public function exportExcel(Request $request)
 
     $docNo = $request->doc_no;
 
-    $ids = PermintaanBarang::where('user_id', auth()->id())
+    $items = PermintaanBarang::where('user_id', auth()->id())
         ->where('doc_no', $docNo)
-        ->pluck('id')
-        ->toArray();
+        ->get();
+
+    if ($items->isEmpty()) {
+        return back()->with('error', 'Data tidak ditemukan');
+    }
+
+    DB::transaction(function () use ($items, $docNo) {
+
+        $export = PermintaanExport::create([
+            'user_id' => auth()->id(),
+            'doc_no'  => $docNo,
+        ]);
+
+        foreach ($items as $item) {
+            PermintaanExportItem::create([
+                'export_id'            => $export->id,
+                'nama_barang'          => $item->nama_barang,
+                'merk_type'            => $item->merk_type,
+                'jumlah'               => $item->jumlah,
+                'harga_satuan'         => $item->harga_satuan,
+                'total'                => $item->total,
+                'supplier'             => $item->supplier,
+                'arrival_date'         => $item->arrival_date,
+                'keterangan'           => $item->keterangan,
+            ]);
+        }
+    });
 
     return Excel::download(
-        new PermintaanExcelExport($ids, $docNo),
+        new PermintaanExcelExport($items->pluck('id')->toArray(), $docNo),
         $docNo . '.xlsx'
     );
 }
+
 
 }

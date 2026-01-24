@@ -9,9 +9,6 @@ class PermintaanExport extends Model
     protected $fillable = [
         'user_id',
         'doc_no',
-        'lokasi',
-        'item_count',
-        'grand_total',
         'exported_at',
     ];
 
@@ -21,6 +18,10 @@ class PermintaanExport extends Model
 
     public function items()
     {
-        return $this->hasMany(PermintaanExportItem::class, 'export_id');
+        return $this->hasMany(
+            PermintaanExportItem::class,
+            'export_id', // foreign key di permintaan_export_items
+            'id'         // primary key di permintaan_exports
+        );
     }
 }

@@ -12,30 +12,26 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('permintaan_export_items', function (Blueprint $table) {
-    $table->id();
+            $table->id();
 
-    $table->foreignId('export_id')
-        ->constrained('permintaan_exports')
-        ->cascadeOnDelete();
+            $table->foreignId('export_id')
+                ->constrained('permintaan_exports')
+                ->cascadeOnDelete();
 
-    $table->foreignId('permintaan_barang_id')
-        ->constrained('permintaan_barangs')
-        ->cascadeOnDelete();
+            $table->string('nama_barang');
+            $table->string('merk_type');
+            $table->integer('jumlah');
 
-    // snapshot data
-    $table->string('nama_barang');
-    $table->string('merk_type')->nullable();
-    $table->integer('jumlah');
+            // rupiah: simpan angka bulat (tanpa koma)
+            $table->unsignedBigInteger('harga_satuan');
+            $table->unsignedBigInteger('total');
 
-    $table->unsignedBigInteger('harga_satuan');
-    $table->unsignedBigInteger('total');
+            $table->string('supplier');
+            $table->date('arrival_date');
+            $table->text('keterangan')->nullable();
 
-    $table->string('supplier')->nullable();
-    $table->date('arrival_date')->nullable();
-    $table->text('keterangan')->nullable();
-
-    $table->timestamps();
-    });
+            $table->timestamps();
+        });
     }
 
     /**

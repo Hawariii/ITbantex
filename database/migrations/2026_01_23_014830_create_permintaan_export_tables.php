@@ -11,19 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('permintaan_exports', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-
-        $table->string('doc_no')->index();
-        $table->string('lokasi')->default('Sentul');
-
-        $table->integer('item_count')->default(0);
-        $table->unsignedBigInteger('grand_total')->default(0);
-
-        $table->timestamp('exported_at')->nullable();
-        $table->timestamps();   
-        });     
+    Schema::create('permintaan_exports', function (Blueprint $table) {
+    $table->id();
+    $table->string('doc_no');
+    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+    $table->timestamp('exported_at');
+    $table->timestamps();
+    });
     }
 
     /**

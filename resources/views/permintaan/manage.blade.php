@@ -43,8 +43,7 @@
 
                     <button
                         type="submit"
-                        class="px-4 py-2 text-sm rounded-md
-                       bg-gray-800 text-white hover:bg-gray-700"
+                        class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-100 transition"
                     >
                         Print
                     </button>

@@ -72,11 +72,21 @@ Route::middleware(['auth'])->group(function () {
 });
 });
 
+
 Route::middleware(['auth'])->group(function () {
-    Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
-    Route::get('/history/{id}', [HistoryController::class, 'show'])->name('history.show');
-    Route::post('/history/{id}/reprint', [HistoryController::class, 'reprint'])->name('history.reprint');
-    Route::delete('/history/{id}', [HistoryController::class, 'destroy'])->name('history.destroy');
+
+    Route::get('/history', [HistoryController::class, 'index'])
+        ->name('history.index');
+
+    Route::get('/history/{id}', [HistoryController::class, 'show'])
+        ->name('history.show');
+
+    Route::get('/history/{id}/reprint', [HistoryController::class, 'reprint'])
+        ->name('history.reprint');
+
+    Route::delete('/history/{id}', [HistoryController::class, 'destroy'])
+        ->name('history.destroy');
+
 });
 
 

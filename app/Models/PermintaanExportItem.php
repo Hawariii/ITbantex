@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class PermintaanExportItem extends Model
 {
+    public $timestamps = false;
+
     protected $fillable = [
         'export_id',
-        'permintaan_barang_id',
         'nama_barang',
         'merk_type',
         'jumlah',
@@ -19,12 +20,12 @@ class PermintaanExportItem extends Model
         'keterangan',
     ];
 
-    protected $casts = [
-        'arrival_date' => 'date',
-    ];
-
     public function export()
     {
-        return $this->belongsTo(PermintaanExport::class, 'export_id');
+        return $this->belongsTo(
+            PermintaanExport::class,
+            'export_id',
+            'id'
+        );
     }
 }
