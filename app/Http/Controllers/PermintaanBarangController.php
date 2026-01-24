@@ -21,24 +21,48 @@ class PermintaanBarangController extends Controller{
 
 public function store(Request $request)
 {
-    foreach ($request->nama_barang as $index => $nama) {
+    $request->validate([
+        'doc_no' => 'required|string|max:100',
 
+        'nama_barang'    => 'required|array',
+        'nama_barang.*'  => 'required|string|max:255',
+
+        'merk_type'      => 'required|array',
+        'merk_type.*'    => 'required|string|max:255',
+
+        'jumlah'         => 'required|array',
+        'jumlah.*'       => 'required|integer|min:1',
+
+        'harga_satuan'   => 'required|array',
+        'harga_satuan.*' => 'required',
+
+        'supplier'       => 'required|string|max:255',
+        'arrival_date'   => 'required|date',
+        'keterangan'     => 'nullable|string',
+    ]);
+
+    foreach ($request->nama_barang as $index => $nama) {
         $harga = str_replace('.', '', $request->harga_satuan[$index]);
 
         PermintaanBarang::create([
             'user_id'      => auth()->id(),
+            'doc_no'       => $request->doc_no,
+
             'nama_barang'  => $nama,
             'merk_type'    => $request->merk_type[$index],
             'jumlah'       => $request->jumlah[$index],
+
             'harga_satuan' => $harga,
             'total'        => $request->jumlah[$index] * $harga,
+
             'supplier'     => $request->supplier,
             'arrival_date' => $request->arrival_date,
             'keterangan'   => $request->keterangan,
         ]);
     }
 
-    return redirect()->route('permintaan.manage')->with('success', 'Permintaan berhasil disimpan');
+    return redirect()->route('permintaan.manage')
+        ->with('success', 'Permintaan berhasil disimpan');
 }
 
 public function edit($id)
@@ -50,13 +74,18 @@ public function edit($id)
     return view('permintaan.edit', compact('item'));
 }
 
+
 public function update(Request $request, $id)
 {
     $request->validate([
-        'nama_barang'  => 'required',
-        'merk_type'    => 'required',
-        'jumlah'       => 'required|integer',
+        'doc_no'       => 'required|string|max:100',
+        'nama_barang'  => 'required|string|max:255',
+        'merk_type'    => 'required|string|max:255',
+        'jumlah'       => 'required|integer|min:1',
         'harga_satuan' => 'required',
+        'supplier'     => 'required|string|max:255',
+        'arrival_date' => 'required|date',
+        'keterangan'   => 'nullable|string',
     ]);
 
     $item = PermintaanBarang::where('id', $id)
@@ -66,6 +95,7 @@ public function update(Request $request, $id)
     $harga = str_replace('.', '', $request->harga_satuan);
 
     $item->update([
+        'doc_no'       => $request->doc_no,
         'nama_barang'  => $request->nama_barang,
         'merk_type'    => $request->merk_type,
         'jumlah'       => $request->jumlah,
@@ -80,6 +110,7 @@ public function update(Request $request, $id)
         ->with('success', 'Item berhasil diupdate');
 }
 
+
 public function destroy($id)
 {
     $item = PermintaanBarang::where('id', $id)
@@ -92,9 +123,15 @@ public function destroy($id)
         ->with('success', 'Item berhasil dihapus');
 }
 
+
 public function manage()
 {
-    $data = PermintaanBarang::where('user_id', auth()->id())->get();
+    $data = PermintaanBarang::where('user_id', auth()->id())
+        ->orderBy('doc_no')
+        ->orderByDesc('created_at')
+        ->get()
+        ->groupBy('doc_no');
+
     return view('permintaan.manage', compact('data'));
 }
 
@@ -102,47 +139,14 @@ public function exportExcel(Request $request)
 {
     $request->validate([
         'doc_no' => 'required|string|max:100',
-        'ids'    => 'required|array',
     ]);
 
     $docNo = $request->doc_no;
-    $ids   = $request->ids;
 
-    $items = PermintaanBarang::whereIn('id', $ids)
-        ->where('user_id', auth()->id())
-        ->get();
-
-    if ($items->isEmpty()) {
-        return back()->with('error', 'Data tidak valid / bukan milik kamu');
-    }
-
-    DB::transaction(function () use ($items, $docNo) {
-
-        $export = PermintaanExport::create([
-            'user_id'     => auth()->id(),
-            'doc_no'      => $docNo,
-            'lokasi'      => 'Sentul',
-            'item_count'  => $items->count(),
-            'grand_total' => $items->sum('total'),
-            'exported_at' => now(),
-        ]);
-
-        foreach ($items as $item) {
-            PermintaanExportItem::create([
-                'export_id'            => $export->id,
-                'permintaan_barang_id' => $item->id,
-
-                'nama_barang'  => $item->nama_barang,
-                'merk_type'    => $item->merk_type,
-                'jumlah'       => $item->jumlah,
-                'harga_satuan' => $item->harga_satuan,
-                'total'        => $item->total,
-                'supplier'     => $item->supplier,
-                'arrival_date' => $item->arrival_date,
-                'keterangan'   => $item->keterangan,
-            ]);
-        }
-    });
+    $ids = PermintaanBarang::where('user_id', auth()->id())
+        ->where('doc_no', $docNo)
+        ->pluck('id')
+        ->toArray();
 
     return Excel::download(
         new PermintaanExcelExport($ids, $docNo),

@@ -8,6 +8,7 @@ class PermintaanBarang extends Model
 {
     protected $fillable = [
         'user_id',
+        'doc_no',
         'nama_barang',
         'merk_type',
         'jumlah',

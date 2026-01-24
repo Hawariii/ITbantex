@@ -45,14 +45,20 @@ Route::middleware(['auth'])->group(function () {
         return view('dashboard', compact('data'));
     })->name('dashboard');
 
+Route::middleware(['auth'])->group(function () {
+
     Route::get('/permintaan/create', [PermintaanBarangController::class, 'create'])
         ->name('permintaan.create');
 
     Route::post('/permintaan', [PermintaanBarangController::class, 'store'])
         ->name('permintaan.store');
-});
 
-Route::middleware(['auth'])->group(function () {
+    Route::get('/permintaan/manage', [PermintaanBarangController::class, 'manage'])
+        ->name('permintaan.manage');
+
+    Route::post('/permintaan/export-excel', [PermintaanBarangController::class, 'exportExcel'])
+        ->name('permintaan.exportExcel');
+
     Route::get('/permintaan/{id}/edit', [PermintaanBarangController::class, 'edit'])
         ->name('permintaan.edit');
 
@@ -61,15 +67,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::delete('/permintaan/{id}', [PermintaanBarangController::class, 'destroy'])
         ->name('permintaan.destroy');
+    Route::post('/permintaan/export', [PermintaanBarangController::class, 'exportExcel'])
+    ->name('permintaan.exportExcel');
 });
-
-Route::middleware(['auth'])->group(function () {
-
-    Route::get('/manage', [PermintaanBarangController::class, 'manage'])
-        ->name('permintaan.manage');
-    
-    Route::post('/permintaan/export-excel', [PermintaanBarangController::class, 'exportExcel'])
-     ->name('permintaan.exportExcel');
 });
 
 Route::middleware(['auth'])->group(function () {

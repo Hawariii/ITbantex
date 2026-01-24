@@ -18,6 +18,20 @@
 
             <!-- Supplier & Arrival -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">
+                    Document No
+                </label>
+
+                    <input
+                    type="text"
+                    name="doc_no"
+                    value="{{ old('doc_no') }}"
+                    placeholder="Contoh: PR-010126"
+                    required
+                    class="mt-1 w-full rounded-md border-gray-300 focus:border-gray-800 focus:ring-gray-800">
+                </div>
+
                 <div>
                     <label class="block text-sm text-gray-600 mb-1">Supplier</label>
                     <input type="text"
