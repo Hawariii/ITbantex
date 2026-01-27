@@ -2,14 +2,14 @@
 <div class="max-w-4xl mx-auto py-8">
 
     <!-- Header -->
-    <div class="bg-white shadow rounded-lg p-6 mb-6">
+    {{-- <div class="bg-white shadow rounded-lg p-6 mb-6">
         <h1 class="text-2xl font-semibold text-gray-800">
             Edit Permintaan Barang
         </h1>
         <p class="text-sm text-gray-500">
             Perbarui data permintaan barang
         </p>
-    </div>
+    </div> --}}
 
     <!-- Form -->
     <form method="POST" action="{{ route('permintaan.update', $item->id) }}"

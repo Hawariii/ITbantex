@@ -9,17 +9,16 @@ use App\Exports\PermintaanExcelExport;
 use App\Models\PermintaanExportItem;
 use App\Models\PermintaanExport;
 use Illuminate\Support\Facades\DB;
-use App\Helpers\DocNoGenerators;
 use Carbon\Carbon;
-use App\Services\DocNoGenerator;
+use App\Services\DocNoGeneratorService;
+use App\Services\ExportService;
 
 
 class PermintaanBarangController extends Controller{
 
-    public function create()
+    public function create(DocNoGeneratorService $docNoService)
     {
-         $docNo = $this->generateDocNo();
-         $docNo = DocNoGenerator::generate();
+         $docNo = $docNoService->generate();
          return view('permintaan.create', compact('docNo'));
     }
 
@@ -44,7 +43,7 @@ public function store(Request $request)
     ]);
 
     // ✅ generate doc_no sekali
-    $docNo = DocNoGenerator::generate();
+    $docNo = (new DocNoGeneratorService())->generate();
 
     foreach ($request->nama_barang as $index => $nama) {
         $harga = str_replace('.', '', $request->harga_satuan[$index]);
@@ -141,71 +140,31 @@ public function manage()
     return view('permintaan.manage', compact('data'));
 }
 
-public function exportExcel(Request $request)
-{
+public function exportExcel(
+    Request $request,
+    ExportService $exportService
+) {
     $request->validate([
-        'doc_no' => 'required|string|max:100',
+        'doc_no' => 'required|string',
     ]);
 
-    $docNo = $request->doc_no;
+    try {
+        $export = $exportService->exportByDocNo(
+            $request->doc_no,
+            auth()->id()
+        );
 
-    $items = PermintaanBarang::where('user_id', auth()->id())
-        ->where('doc_no', $docNo)
-        ->get();
+        return Excel::download(
+            new PermintaanExcelExport(
+                $export->items->pluck('id')->toArray(),
+                $export->doc_no
+            ),
+            $export->doc_no . '.xlsx'
+        );
 
-    if ($items->isEmpty()) {
-        return back()->with('error', 'Data tidak ditemukan');
+    } catch (\Exception $e) {
+        return back()->with('error', $e->getMessage());
     }
-
-    DB::transaction(function () use ($items, $docNo) {
-
-        $export = PermintaanExport::create([
-            'user_id' => auth()->id(),
-            'doc_no'  => $docNo,
-        ]);
-
-        foreach ($items as $item) {
-            PermintaanExportItem::create([
-                'export_id'            => $export->id,
-                'nama_barang'          => $item->nama_barang,
-                'merk_type'            => $item->merk_type,
-                'jumlah'               => $item->jumlah,
-                'harga_satuan'         => $item->harga_satuan,
-                'total'                => $item->total,
-                'supplier'             => $item->supplier,
-                'arrival_date'         => $item->arrival_date,
-                'keterangan'           => $item->keterangan,
-            ]);
-        }
-    });
-
-    return Excel::download(
-        new PermintaanExcelExport($items->pluck('id')->toArray(), $docNo),
-        $docNo . '.xlsx'
-    );
 }
-
-private function generateDocNo()
-{
-    $now = Carbon::now();
-    $month = $now->format('m');
-    $year  = $now->format('y');
-
-    // ambil doc terakhir di bulan & tahun yang sama
-    $last = PermintaanExport::whereMonth('created_at', $now->month)
-        ->whereYear('created_at', $now->year)
-        ->orderBy('doc_no', 'desc')
-        ->first();
-
-    if ($last) {
-        $lastNumber = (int) substr($last->doc_no, 0, 2);
-        $next = str_pad($lastNumber + 1, 2, '0', STR_PAD_LEFT);
-    } else {
-        $next = '01';
-    }
-
-    return $next . $month . $year;
-}
-
 
 }
