@@ -78,15 +78,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/history', [HistoryController::class, 'index'])
         ->name('history.index');
 
-    Route::get('/history/{id}', [HistoryController::class, 'show'])
-        ->name('history.show');
-
+    // HARUS DI ATAS
     Route::get('/history/{id}/reprint', [HistoryController::class, 'reprint'])
         ->name('history.reprint');
 
+    Route::get('/history/{id}', [HistoryController::class, 'show'])
+        ->name('history.show');
+
     Route::delete('/history/{id}', [HistoryController::class, 'destroy'])
         ->name('history.destroy');
-
 });
+
 
 
