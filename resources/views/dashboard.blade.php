@@ -6,7 +6,7 @@
             <h1 class="text-2xl font-semibold text-gray-800">
                 Dashboard Bantex
             </h1>
-            <p class="text-gray-500 text-sm">
+            <p class="text-green-500 text-sm">
                 Ringkasan permintaan barang Anda
             </p>
         </div>

@@ -13,7 +13,7 @@ return new class extends Migration
     {
     Schema::create('permintaan_exports', function (Blueprint $table) {
     $table->id();
-    $table->string('doc_no');
+    $table->string('doc_no') -> unique();
     $table->foreignId('user_id')->constrained()->cascadeOnDelete();
     $table->timestamp('exported_at');
     $table->timestamps();

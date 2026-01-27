@@ -16,7 +16,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             // ✅ doc_no wajib ada sejak create
-            $table->string('doc_no');
+            $table->string('doc_no')->unique();
 
             $table->string('nama_barang');
             $table->string('merk_type');

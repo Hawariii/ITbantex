@@ -9,21 +9,23 @@ use App\Exports\PermintaanExcelExport;
 use App\Models\PermintaanExportItem;
 use App\Models\PermintaanExport;
 use Illuminate\Support\Facades\DB;
-
+use App\Helpers\DocNoGenerators;
+use Carbon\Carbon;
+use App\Services\DocNoGenerator;
 
 
 class PermintaanBarangController extends Controller{
 
     public function create()
     {
-        return view('permintaan.create');
+         $docNo = $this->generateDocNo();
+         $docNo = DocNoGenerator::generate();
+         return view('permintaan.create', compact('docNo'));
     }
 
 public function store(Request $request)
 {
     $request->validate([
-        'doc_no' => 'required|string|max:100',
-
         'nama_barang'    => 'required|array',
         'nama_barang.*'  => 'required|string|max:255',
 
@@ -41,12 +43,15 @@ public function store(Request $request)
         'keterangan'     => 'nullable|string',
     ]);
 
+    // ✅ generate doc_no sekali
+    $docNo = DocNoGenerator::generate();
+
     foreach ($request->nama_barang as $index => $nama) {
         $harga = str_replace('.', '', $request->harga_satuan[$index]);
 
         PermintaanBarang::create([
             'user_id'      => auth()->id(),
-            'doc_no'       => $request->doc_no,
+            'doc_no'       => $docNo,
 
             'nama_barang'  => $nama,
             'merk_type'    => $request->merk_type[$index],
@@ -61,7 +66,8 @@ public function store(Request $request)
         ]);
     }
 
-    return redirect()->route('permintaan.manage')
+    return redirect()
+        ->route('permintaan.manage')
         ->with('success', 'Permintaan berhasil disimpan');
 }
 
@@ -177,6 +183,28 @@ public function exportExcel(Request $request)
         new PermintaanExcelExport($items->pluck('id')->toArray(), $docNo),
         $docNo . '.xlsx'
     );
+}
+
+private function generateDocNo()
+{
+    $now = Carbon::now();
+    $month = $now->format('m');
+    $year  = $now->format('y');
+
+    // ambil doc terakhir di bulan & tahun yang sama
+    $last = PermintaanExport::whereMonth('created_at', $now->month)
+        ->whereYear('created_at', $now->year)
+        ->orderBy('doc_no', 'desc')
+        ->first();
+
+    if ($last) {
+        $lastNumber = (int) substr($last->doc_no, 0, 2);
+        $next = str_pad($lastNumber + 1, 2, '0', STR_PAD_LEFT);
+    } else {
+        $next = '01';
+    }
+
+    return $next . $month . $year;
 }
 
 
