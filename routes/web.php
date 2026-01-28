@@ -5,7 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Models\PermintaanBarang;
 use App\Http\Controllers\PermintaanBarangController;
 use App\Http\Controllers\HistoryController;
-
+use App\Http\Controllers\StockOutController;
+use App\Http\Controllers\ItemMasterController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -89,5 +90,11 @@ Route::middleware(['auth'])->group(function () {
         ->name('history.destroy');
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/item-master', [ItemMasterController::class, 'index'])
+        ->name('item-master.index');
 
+    Route::post('/item-master/sync', [ItemMasterController::class, 'sync'])
+        ->name('item-master.sync');
+});
 
