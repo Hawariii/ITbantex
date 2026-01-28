@@ -1,50 +1,74 @@
 <x-app-layout>
-<div class="max-w-7xl mx-auto py-8 space-y-6">
+    <div class="px-6 py-6">
 
-    <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold">Item Master</h1>
+        {{-- HEADER --}}
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h2 class="text-xl font-semibold">Item Master / Stock Barang</h2>
+                <p class="text-sm text-gray-500">
+                    Data otomatis dari file Excel (read-only)
+                </p>
+            </div>
 
-        <form action="{{ route('item-master.sync') }}" method="POST">
-            @csrf
-            <button class="px-4 py-2 bg-blue-600 text-white rounded">
-                Sync dari Excel
-            </button>
-        </form>
-    </div>
-
-    @if(session('success'))
-        <div class="p-3 bg-green-100 text-green-800 rounded">
-            {{ session('success') }}
+            {{-- TOMBOL SYNC --}}
+            <form action="{{ route('item-master.sync') }}" method="POST">
+                @csrf
+                <button
+                    type="submit"
+                    class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-100 transition">
+                    Sync dari Excel
+                </button>
+            </form>
         </div>
-    @endif
 
-    <div class="overflow-x-auto bg-white shadow rounded">
-        <table class="min-w-full text-sm">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="p-2">Asset</th>
-                    <th class="p-2">Nama</th>
-                    <th class="p-2">Type</th>
-                    <th class="p-2">Merk</th>
-                    <th class="p-2">Stock</th>
-                    <th class="p-2">Min</th>
-                    <th class="p-2">Max</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($items as $item)
-                <tr class="border-t">
-                    <td class="p-2">{{ $item->asset_no }}</td>
-                    <td class="p-2">{{ $item->nama_barang }}</td>
-                    <td class="p-2">{{ $item->type }}</td>
-                    <td class="p-2">{{ $item->merk }}</td>
-                    <td class="p-2 font-bold">{{ $item->stock }}</td>
-                    <td class="p-2">{{ $item->stock_min }}</td>
-                    <td class="p-2">{{ $item->stock_max }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+        {{-- ALERT --}}
+        @if(session('success'))
+            <div class="mb-4 px-4 py-2 bg-green-100 text-green-700 rounded">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        {{-- TABLE --}}
+        <div class="bg-white rounded shadow overflow-x-auto">
+            <table class="w-full text-sm border-collapse">
+                <thead class="bg-gray-100 text-gray-700">
+                    <tr>
+                        <th class="px-3 py-2 border text-left">No Asset</th>
+                        <th class="px-3 py-2 border text-left">Nama Barang</th>
+                        <th class="px-3 py-2 border text-left">Type</th>
+                        <th class="px-3 py-2 border text-left">Merk</th>
+                        <th class="px-3 py-2 border text-center">Stock</th>
+                        <th class="px-3 py-2 border text-center">Min</th>
+                        <th class="px-3 py-2 border text-center">Max</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @forelse($items as $item)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-3 py-2 border">{{ $item->asset_no }}</td>
+                            <td class="px-3 py-2 border">{{ $item->nama_barang }}</td>
+                            <td class="px-3 py-2 border">{{ $item->type }}</td>
+                            <td class="px-3 py-2 border">{{ $item->merk }}</td>
+
+                            <td class="px-3 py-2 border text-center
+                                {{ $item->stock <= $item->stock_min ? 'text-red-600 font-semibold' : '' }}">
+                                {{ $item->stock }}
+                            </td>
+
+                            <td class="px-3 py-2 border text-center">{{ $item->stock_min }}</td>
+                            <td class="px-3 py-2 border text-center">{{ $item->stock_max }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-3 py-6 text-center text-gray-500">
+                                Data item master kosong
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
     </div>
-</div>
 </x-app-layout>

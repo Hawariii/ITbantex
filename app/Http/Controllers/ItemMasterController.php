@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\ItemMaster;
 use App\Services\ItemMasterSyncService;
-use Illuminate\Http\Request;
 
 class ItemMasterController extends Controller
 {
     public function index()
     {
-        $items = ItemMaster::orderBy('nama_barang')->get();
+        $items = ItemMaster::orderBy('asset_no')->get();
+
         return view('item-master.index', compact('items'));
     }
 
@@ -22,6 +22,6 @@ class ItemMasterController extends Controller
 
         return redirect()
             ->route('item-master.index')
-            ->with('success', 'Item master berhasil disinkronkan');
+            ->with('success', 'Item master berhasil disinkronkan dari Excel');
     }
 }
