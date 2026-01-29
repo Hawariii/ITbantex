@@ -8,32 +8,26 @@ use Illuminate\Support\Facades\DB;
 
 class StockOutService
 {
-    /**
-     * Stock keluar (permintaan barang)
-     */
-    public function handle(string $itemName, int $qty, ?string $note = null): StockTransaction
+    public function handle(int $itemId, int $qty, ?string $note = null): void
     {
-        return DB::transaction(function () use ($itemName, $qty, $note) {
+        DB::transaction(function () use ($itemId, $qty, $note) {
 
-            // cari item master berdasarkan nama (partial match)
-            $item = ItemMaster::where('name', 'like', "%{$itemName}%")->first();
+            $item = ItemMaster::lockForUpdate()->findOrFail($itemId);
 
-            // default: item tidak terdaftar
-            $itemId = null;
-
-            if ($item) {
-                // kurangi stock
-                $item->reduceStock($qty);
-                $itemId = $item->id;
+            if ($item->stock < $qty) {
+                throw new \Exception('Stock tidak mencukupi');
             }
 
-            // catat transaksi (baik master / non-master)
-            return StockTransaction::create([
-                'item_master_id' => $itemId,
-                'type'           => 'OUT',
-                'quantity'       => $qty,
-                'reference'      => 'REQUEST',
-                'note'           => $note ?? $itemName,
+            // kurangi stock
+            $item->stock -= $qty;
+            $item->save();
+
+            // log transaksi
+            StockTransaction::create([
+                'item_master_id' => $item->id,
+                'type' => 'OUT',
+                'qty' => $qty,
+                'note' => $note,
             ]);
         });
     }

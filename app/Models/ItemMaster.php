@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ItemMaster extends Model
 {
     protected $fillable = [
+
         'asset_no',
         'nama_barang',
         'type',

@@ -24,4 +24,9 @@ class ItemMasterController extends Controller
             ->route('item-master.index')
             ->with('success', 'Item master berhasil disinkronkan dari Excel');
     }
+
+    public function stockTransactions()
+    {
+    return $this->hasMany(StockTransaction::class);
+    }
 }

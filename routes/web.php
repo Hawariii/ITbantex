@@ -96,5 +96,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/item-master/sync', [ItemMasterController::class, 'sync'])
         ->name('item-master.sync');
+
+    Route::post('/stock-out', [StockOutController::class, 'store'])
+    ->name('stock.out');
 });
 

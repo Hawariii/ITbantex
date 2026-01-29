@@ -9,13 +9,12 @@ class StockTransaction extends Model
     protected $fillable = [
         'item_master_id',
         'type',
-        'quantity',
-        'reference',
+        'qty',
         'note',
     ];
 
-    public function itemMaster()
+    public function item()
     {
-        return $this->belongsTo(ItemMaster::class);
+        return $this->belongsTo(ItemMaster::class, 'item_master_id');
     }
 }

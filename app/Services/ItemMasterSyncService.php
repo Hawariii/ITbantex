@@ -28,9 +28,10 @@ class ItemMasterSyncService
          * L = stock_min
          */
 
-        for ($row = 5; $row <= 53; $row++) {
+        for ($row = 5; $row <= 54; $row++) {
             $assetNo = trim((string) $sheet->getCell("C{$row}")->getValue());
-            $nama    = trim((string) $sheet->getCell("G{$row}")->getValue());
+            $nama    = trim((string) $sheet->getCell("H{$row}")->getValue());
+            $id      = trim((string) $sheet->getCell("B{$row}")->getValue());
 
             if (!$assetNo || !$nama) {
                 continue;
@@ -40,7 +41,7 @@ class ItemMasterSyncService
                 ['asset_no' => $assetNo],
                 [
                     'nama_barang' => $nama,
-                    'type'        => $sheet->getCell("H{$row}")->getValue(),
+                    'type'        => $sheet->getCell("J{$row}")->getValue(),
                     'merk'        => $sheet->getCell("I{$row}")->getValue(),
                     'spesifikasi' => $sheet->getCell("J{$row}")->getValue(),
                     'stock'       => (int) $sheet->getCell("D{$row}")->getValue(),

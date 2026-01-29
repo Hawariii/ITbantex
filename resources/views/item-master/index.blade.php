@@ -2,7 +2,7 @@
     <div class="px-6 py-6">
 
         {{-- HEADER --}}
-        <div class="flex items-center justify-between mb-4">
+        <div class="bg-white shadow rounded-lg p-6 flex items-center justify-between mb-4">
             <div>
                 <h2 class="text-xl font-semibold">Item Master / Stock Barang</h2>
                 <p class="text-sm text-gray-500">
@@ -20,7 +20,15 @@
                 </button>
             </form>
         </div>
-
+        {{-- SEARCH --}}
+        <div class="mb-4">
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Cari nama barang / asset / merk..."
+                class="w-full md:w-1/3 px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 text-sm"
+            >
+        </div>
         {{-- ALERT --}}
         @if(session('success'))
             <div class="mb-4 px-4 py-2 bg-green-100 text-green-700 rounded">
@@ -33,6 +41,7 @@
             <table class="w-full text-sm border-collapse">
                 <thead class="bg-gray-100 text-gray-700">
                     <tr>
+                        <th class="px-3 py-2 border text-left">No</th>
                         <th class="px-3 py-2 border text-left">No Asset</th>
                         <th class="px-3 py-2 border text-left">Nama Barang</th>
                         <th class="px-3 py-2 border text-left">Type</th>
@@ -44,8 +53,9 @@
                 </thead>
 
                 <tbody>
-                    @forelse($items as $item)
+                    @forelse($items as $index => $item)
                         <tr class="hover:bg-gray-50">
+                            <td class="px-3 py-2 border">{{ $index + 1 }}</td>
                             <td class="px-3 py-2 border">{{ $item->asset_no }}</td>
                             <td class="px-3 py-2 border">{{ $item->nama_barang }}</td>
                             <td class="px-3 py-2 border">{{ $item->type }}</td>
@@ -69,6 +79,16 @@
                 </tbody>
             </table>
         </div>
-
     </div>
+<script>
+document.getElementById('searchInput').addEventListener('keyup', function () {
+    const value = this.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(value) ? '' : 'none';
+    });
+});
+</script>
 </x-app-layout>
