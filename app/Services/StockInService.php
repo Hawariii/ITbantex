@@ -7,18 +7,18 @@ use App\Models\StockTransaction;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
-class StockOutService
+class StockInService
 {
     /**
-     * Client ambil barang (STOCK LANGSUNG BERKURANG)
+     * Barang pengganti datang (STOCK NAMB AH)
      */
-    public function out(
+    public function in(
         int $itemId,
         int $qty,
         string $refNo,
-        ?int $userId = null
+        ?int $adminId = null
     ): StockTransaction {
-        return DB::transaction(function () use ($itemId, $qty, $refNo, $userId) {
+        return DB::transaction(function () use ($itemId, $qty, $refNo, $adminId) {
 
             $item = ItemMaster::lockForUpdate()->findOrFail($itemId);
 
@@ -26,21 +26,18 @@ class StockOutService
                 throw new Exception('Qty tidak valid');
             }
 
-            if ($item->stock < $qty) {
-                throw new Exception('Stock tidak mencukupi');
-            }
-
-            // KURANGI STOCK LANGSUNG
-            $item->decrement('stock', $qty);
+            // TAMBAH STOCK
+            $item->increment('stock', $qty);
 
             return StockTransaction::create([
                 'item_master_id' => $item->id,
                 'qty'            => $qty,
-                'type'           => 'OUT',
-                'source'         => 'CLIENT_EXPORT',
+                'type'           => 'IN',
+                'source'         => 'PURCHASE_REPLACEMENT',
                 'status'         => 'CONFIRMED',
                 'ref_no'         => $refNo,
-                'created_by'     => $userId,
+                'confirmed_by'   => $adminId,
+                'confirmed_at'   => now(),
             ]);
         });
     }

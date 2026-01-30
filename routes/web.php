@@ -5,8 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Models\PermintaanBarang;
 use App\Http\Controllers\PermintaanBarangController;
 use App\Http\Controllers\HistoryController;
-use App\Http\Controllers\StockOutController;
 use App\Http\Controllers\ItemMasterController;
+use App\Http\Controllers\StockOutController;
+use App\Http\Controllers\StockInController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -97,7 +98,26 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/item-master/sync', [ItemMasterController::class, 'sync'])
         ->name('item-master.sync');
 
-    Route::post('/stock-out', [StockOutController::class, 'store'])
+    Route::post('/stock/out', [StockOutController::class, 'store'])
     ->name('stock.out');
+
+    Route::post('/stock/in', [StockInController::class, 'store'])
+    ->name('stock.in');
+});
+
+Route::middleware(['auth', 'admin'])->group(function () {
+
+    Route::post('/item-master/sync', [ItemMasterController::class, 'sync']);
+    Route::post('/stock/in', [StockInController::class, 'store']);
+    Route::get('/admin/transactions', [StockTransactionController::class, 'index']);
+
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/client/export', [ClientExportController::class, 'store']);
+});
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::post('/admin/confirm-stock-in', [StockInController::class, 'confirm']);
 });
 

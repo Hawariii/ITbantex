@@ -4,33 +4,44 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration {
     public function up(): void
     {
-Schema::create('stock_transactions', function (Blueprint $table) {
-    $table->id();
+        Schema::create('stock_transactions', function (Blueprint $table) {
+            $table->id();
 
-    $table->foreignId('item_master_id')
-          ->nullable()
-          ->constrained()
-          ->nullOnDelete();
+            // RELATION
+            $table->foreignId('item_master_id')
+                ->constrained('item_masters')
+                ->cascadeOnDelete();
 
-    $table->enum('type', ['IN', 'OUT']);
-    $table->integer('quantity');
+            // DATA TRANSAKSI
+            $table->integer('qty');
 
-    $table->string('reference')->nullable(); // doc_no / permintaan
-    $table->text('note')->nullable();
+            $table->enum('type', ['OUT', 'IN']);
+            $table->enum('source', ['CLIENT_EXPORT', 'REPLACEMENT']);
+            $table->enum('status', ['PENDING', 'CONFIRMED'])
+                ->default('PENDING');
 
-    $table->timestamps();
-});
+            // REFERENSI / AUDIT
+            $table->string('ref_no')->nullable();
+
+            $table->foreignId('created_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            $table->foreignId('confirmed_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            $table->timestamp('confirmed_at')->nullable();
+
+            $table->timestamps();
+        });
     }
-    /**
-     * Reverse the migrations.
-     */
+
     public function down(): void
     {
         Schema::dropIfExists('stock_transactions');

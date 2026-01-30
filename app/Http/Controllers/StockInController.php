@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\StockOutService;
+use App\Services\StockInService;
 use Illuminate\Http\Request;
 
-class StockOutController extends Controller
+class StockInController extends Controller
 {
-    public function store(Request $request, StockOutService $service)
+    public function store(Request $request, StockInService $service)
     {
         $request->validate([
             'item_id' => 'required|exists:item_masters,id',
@@ -15,13 +15,13 @@ class StockOutController extends Controller
             'ref_no'  => 'required|string|max:50',
         ]);
 
-        $service->out(
+        $service->in(
             $request->item_id,
             $request->qty,
             $request->ref_no,
             auth()->id()
         );
 
-        return back()->with('success', 'Stock berhasil dikurangi');
+        return back()->with('success', 'Stock berhasil ditambahkan');
     }
 }
