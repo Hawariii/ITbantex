@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -10,26 +9,19 @@ return new class extends Migration {
         Schema::create('stock_transactions', function (Blueprint $table) {
             $table->id();
 
-            // RELATION
-            $table->foreignId('item_master_id')
-                ->constrained('item_masters')
+            $table->foreignId('item_id')
+                ->constrained('items')
                 ->cascadeOnDelete();
 
-            // DATA TRANSAKSI
             $table->integer('qty');
 
-            $table->enum('type', ['OUT', 'IN']);
-            $table->enum('source', ['CLIENT_EXPORT', 'REPLACEMENT']);
-            $table->enum('status', ['PENDING', 'CONFIRMED'])
-                ->default('PENDING');
+            $table->enum('type', ['out', 'in'])->default('out');
 
-            // REFERENSI / AUDIT
-            $table->string('ref_no')->nullable();
+            $table->enum('status', ['pending', 'completed'])->default('pending');
 
             $table->foreignId('created_by')
-                ->nullable()
                 ->constrained('users')
-                ->nullOnDelete();
+                ->cascadeOnDelete();
 
             $table->foreignId('confirmed_by')
                 ->nullable()

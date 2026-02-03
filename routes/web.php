@@ -1,19 +1,36 @@
-<?php
+@<?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Models\PermintaanBarang;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PermintaanBarangController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\ItemMasterController;
-use App\Http\Controllers\StockOutController;
-use App\Http\Controllers\StockInController;
+use App\Http\Controllers\StockTransactionController;
+use App\Http\Middleware\AdminMiddleware;
+use App\Models\PermintaanBarang;
 
+/*
+|--------------------------------------------------------------------------
+| PUBLIC
+|--------------------------------------------------------------------------
+*/
 Route::get('/', function () {
     return view('auth.login');
 });
 
-Route::middleware(['auth'])->group(function () {
+/*
+|--------------------------------------------------------------------------
+| AUTH
+|--------------------------------------------------------------------------
+*/
+require __DIR__ . '/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| CLIENT (AUTH)
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', function () {
         $data = PermintaanBarang::where('user_id', auth()->id())
@@ -23,32 +40,12 @@ Route::middleware(['auth'])->group(function () {
         return view('dashboard', compact('data'));
     })->name('dashboard');
 
-    Route::get('/permintaan/create', function () {
-        return view('permintaan.create');
-    })->name('permintaan.create');
-
-});
-
-Route::middleware('auth')->group(function () {
+    // PROFILE
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
-require __DIR__.'/auth.php';
-
-Route::middleware(['auth'])->group(function () {
-
-    Route::get('/dashboard', function () {
-        $data = PermintaanBarang::where('user_id', auth()->id())
-            ->latest()
-            ->get();
-
-        return view('dashboard', compact('data'));
-    })->name('dashboard');
-
-Route::middleware(['auth'])->group(function () {
-
+    // PERMINTAAN BARANG
     Route::get('/permintaan/create', [PermintaanBarangController::class, 'create'])
         ->name('permintaan.create');
 
@@ -58,8 +55,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/permintaan/manage', [PermintaanBarangController::class, 'manage'])
         ->name('permintaan.manage');
 
-    Route::post('/permintaan/export-excel', [PermintaanBarangController::class, 'exportExcel'])
-        ->name('permintaan.exportExcel');
+    Route::post('/permintaan/export', [PermintaanBarangController::class, 'exportExcel'])
+        ->name('permintaan.export');
 
     Route::get('/permintaan/{id}/edit', [PermintaanBarangController::class, 'edit'])
         ->name('permintaan.edit');
@@ -69,18 +66,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::delete('/permintaan/{id}', [PermintaanBarangController::class, 'destroy'])
         ->name('permintaan.destroy');
-    Route::post('/permintaan/export', [PermintaanBarangController::class, 'exportExcel'])
-    ->name('permintaan.exportExcel');
-});
-});
 
-
-Route::middleware(['auth'])->group(function () {
-
+    // HISTORY
     Route::get('/history', [HistoryController::class, 'index'])
         ->name('history.index');
 
-    // HARUS DI ATAS
     Route::get('/history/{id}/reprint', [HistoryController::class, 'reprint'])
         ->name('history.reprint');
 
@@ -91,33 +81,36 @@ Route::middleware(['auth'])->group(function () {
         ->name('history.destroy');
 });
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/item-master', [ItemMasterController::class, 'index'])
-        ->name('item-master.index');
+/*
+|--------------------------------------------------------------------------
+| ADMIN
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', AdminMiddleware::class])
+    ->prefix('admin')
+    ->group(function () {
 
-    Route::post('/item-master/sync', [ItemMasterController::class, 'sync'])
-        ->name('item-master.sync');
+        // ITEM MASTER
+        Route::get('/item-master', [ItemMasterController::class, 'index'])
+            ->name('item-master.index');
 
-    Route::post('/stock/out', [StockOutController::class, 'store'])
-    ->name('stock.out');
+        Route::post('/item-master/sync', [ItemMasterController::class, 'sync'])
+            ->name('item-master.sync');
 
-    Route::post('/stock/in', [StockInController::class, 'store'])
-    ->name('stock.in');
-});
+        // STOCK TRANSACTION
+        Route::get('/stock-transactions', [StockTransactionController::class, 'index'])
+            ->name('admin.stock.index');
 
-Route::middleware(['auth', 'admin'])->group(function () {
+        Route::post('/stock-transactions/{id}/confirm', [StockTransactionController::class, 'confirm'])
+            ->name('admin.stock.confirm');
+    });
 
-    Route::post('/item-master/sync', [ItemMasterController::class, 'sync']);
-    Route::post('/stock/in', [StockInController::class, 'store']);
-    Route::get('/admin/transactions', [StockTransactionController::class, 'index']);
-
-});
-
-Route::middleware(['auth'])->group(function () {
-    Route::post('/client/export', [ClientExportController::class, 'store']);
-});
-
-Route::middleware(['auth', 'admin'])->group(function () {
-    Route::post('/admin/confirm-stock-in', [StockInController::class, 'confirm']);
-});
-
+/*
+|--------------------------------------------------------------------------
+| CLIENT STOCK REQUEST
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->post(
+    '/stock-out',
+    [StockTransactionController::class, 'stockOut']
+)->name('stock.out');

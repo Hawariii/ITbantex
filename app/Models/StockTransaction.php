@@ -2,34 +2,30 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class StockTransaction extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'item_master_id',
+        'item_id',
         'qty',
         'type',
-        'source',
         'status',
-        'ref_no',
         'created_by',
         'confirmed_by',
         'confirmed_at',
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | RELATIONS
-    |--------------------------------------------------------------------------
-    */
+    protected $casts = [
+        'confirmed_at' => 'datetime',
+    ];
 
     public function item()
     {
-        return $this->belongsTo(ItemMaster::class, 'item_master_id');
+        return $this->belongsTo(Item::class);
     }
 
     public function creator()
@@ -40,21 +36,5 @@ class StockTransaction extends Model
     public function confirmer()
     {
         return $this->belongsTo(User::class, 'confirmed_by');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | SCOPES (optional tapi kepake)
-    |--------------------------------------------------------------------------
-    */
-
-    public function scopePending($query)
-    {
-        return $query->where('status', 'PENDING');
-    }
-
-    public function scopeConfirmed($query)
-    {
-        return $query->where('status', 'CONFIRMED');
     }
 }

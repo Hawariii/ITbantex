@@ -11,21 +11,37 @@ class ExportService
 {
     public function exportByDocNo(string $docNo, int $userId): PermintaanExport
     {
-        // 🔒 CEGAH DUPLIKAT HISTORY
-        $existingExport = PermintaanExport::where('doc_no', $docNo)->first();
+        /**
+         * ==============================
+         * REPRINT CASE (SUDAH PERNAH EXPORT)
+         * ==============================
+         */
+        $existingExport = PermintaanExport::where('doc_no', $docNo)
+            ->with('items')
+            ->first();
 
-        if ($existingExport) {
-            return $existingExport; // ⬅️ REPRINT CASE
+        if ($existingExport && $existingExport->items->isNotEmpty()) {
+            return $existingExport;
         }
 
+        /**
+         * ==============================
+         * AMBIL DATA PERMINTAAN
+         * ==============================
+         */
         $items = PermintaanBarang::where('user_id', $userId)
             ->where('doc_no', $docNo)
             ->get();
 
         if ($items->isEmpty()) {
-            throw new \Exception('Data tidak ditemukan');
+            throw new \Exception('Data permintaan tidak ditemukan');
         }
 
+        /**
+         * ==============================
+         * EXPORT BARU
+         * ==============================
+         */
         return DB::transaction(function () use ($items, $docNo, $userId) {
 
             $export = PermintaanExport::create([
@@ -48,7 +64,7 @@ class ExportService
                 ]);
             }
 
-            return $export;
+            return $export->load('items');
         });
     }
 }

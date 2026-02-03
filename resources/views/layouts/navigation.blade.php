@@ -24,10 +24,11 @@
                     <x-nav-link :href="route('history.index')" :active="request()->routeIs('history.index')">
                         {{__('History Export')}}
                     </x-nav-link>
-                     <x-nav-link :href="route('item-master.index')" :active="request()->routeIs('item-master.index')">
-                        {{__('Item Master')}}
-                    </x-nav-link>
-                </div>
+                    @if(auth()->check() && auth()->user()->role === 'admin')
+                    <x-nav-link :href="route('item-master.index')" :active="request()->routeIs('item-master.index')">
+                     {{ __('Item Master') }}
+                     </x-nav-link>
+                    @endif
             </div>
 
             <!-- Settings Dropdown -->

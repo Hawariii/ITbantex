@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class PermintaanBarang extends Model
 {
     protected $fillable = [
+        'id',
         'user_id',
         'doc_no',
         'nama_barang',

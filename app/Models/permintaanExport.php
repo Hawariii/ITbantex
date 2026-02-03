@@ -18,10 +18,6 @@ class PermintaanExport extends Model
 
     public function items()
     {
-        return $this->hasMany(
-            PermintaanExportItem::class,
-            'export_id', // foreign key di permintaan_export_items
-            'id'         // primary key di permintaan_exports
-        );
+        return $this->hasMany(PermintaanExportItem::class, 'export_id');
     }
 }
