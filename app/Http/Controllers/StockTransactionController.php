@@ -2,83 +2,78 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Item;
-use App\Models\StockTransaction;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\StockTransaction;
+use App\Models\ItemMaster;
 
 class StockTransactionController extends Controller
 {
-    
-    /**
-     * CLIENT EXPORT / AMBIL BARANG
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | CLIENT REQUEST STOCK OUT
+    |--------------------------------------------------------------------------
+    */
     public function stockOut(Request $request)
     {
         $request->validate([
-            'item_id' => 'required|exists:items,id',
-            'qty' => 'required|integer|min:1',
+            'item_id' => 'required',
+            'qty'     => 'required|integer|min:1'
         ]);
 
-        DB::transaction(function () use ($request) {
-            $item = Item::lockForUpdate()->findOrFail($request->item_id);
+        $item = ItemMaster::findOrFail($request->item_id);
 
-            if ($item->stock < $request->qty) {
-                abort(400, 'Stock tidak mencukupi');
-            }
+        StockTransaction::create([
+            'doc_no'    => 'ST-' . now()->format('YmdHis'),
+            'item_id'   => $item->id,
+            'item_name' => $item->nama_barang,
+            'qty'       => $request->qty,
+            'status'    => 'pending',
+        ]);
 
-            // KURANGI STOK LANGSUNG
-            $item->decrement('stock', $request->qty);
-
-            // CATAT TRANSAKSI
-            StockTransaction::create([
-                'item_id' => $item->id,
-                'qty' => $request->qty,
-                'type' => 'out',
-                'status' => 'pending',
-                'created_by' => auth()->id(),
-            ]);
-        });
-
-        return back()->with('success', 'Barang berhasil dikeluarkan');
+        return back()->with('success', 'Request stock-out berhasil dikirim!');
     }
 
-    /**
-     * LIST TRANSAKSI (ADMIN)
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN VIEW ALL TRANSACTIONS
+    |--------------------------------------------------------------------------
+    */
     public function index()
     {
-        $transactions = StockTransaction::with(['item', 'creator', 'confirmer'])
-            ->latest()
-            ->get();
+        $transactions = StockTransaction::latest()->get();
 
         return view('admin.stock-transactions.index', compact('transactions'));
     }
 
-    /**
-     * ADMIN CONFIRM BARANG PENGGANTI
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN CONFIRM STOCK OUT (REAL STOCK UPDATE)
+    |--------------------------------------------------------------------------
+    */
     public function confirm($id)
     {
-        DB::transaction(function () use ($id) {
-            $trx = StockTransaction::lockForUpdate()->findOrFail($id);
+        $trx = StockTransaction::findOrFail($id);
 
-            if ($trx->status === 'completed') {
-                abort(400, 'Transaksi sudah dikonfirmasi');
-            }
+        if ($trx->status === 'confirmed') {
+            return back()->with('error', 'Sudah dikonfirmasi!');
+        }
 
-            $item = Item::lockForUpdate()->findOrFail($trx->item_id);
+        $item = ItemMaster::findOrFail($trx->item_id);
 
-            // TAMBAH STOK
-            $item->increment('stock', $trx->qty);
+        // ❌ kalau stock kurang
+        if ($item->stock < $trx->qty) {
+            return back()->with('error', 'Stock tidak cukup!');
+        }
 
-            $trx->update([
-                'status' => 'completed',
-                'confirmed_by' => auth()->id(),
-                'confirmed_at' => now(),
-            ]);
-        });
+        // ✅ kurangi stock
+        $item->stock -= $trx->qty;
+        $item->save();
 
-        return back()->with('success', 'Stock berhasil ditambahkan');
+        // ✅ update transaksi
+        $trx->update([
+            'status' => 'confirmed'
+        ]);
+
+        return back()->with('success', 'Stock berhasil dikurangi & transaksi confirmed!');
     }
 }

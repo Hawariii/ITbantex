@@ -1,12 +1,14 @@
-@<?php
+<?php
 
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PermintaanBarangController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\ItemMasterController;
 use App\Http\Controllers\StockTransactionController;
-use App\Http\Middleware\AdminMiddleware;
+use App\Services\ItemMasterSyncService;
+
 use App\Models\PermintaanBarang;
 
 /*
@@ -27,17 +29,19 @@ require __DIR__ . '/auth.php';
 
 /*
 |--------------------------------------------------------------------------
-| CLIENT (AUTH)
+| CLIENT USER
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', function () {
+
         $data = PermintaanBarang::where('user_id', auth()->id())
             ->latest()
             ->get();
 
         return view('dashboard', compact('data'));
+
     })->name('dashboard');
 
     // PROFILE
@@ -79,16 +83,27 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/history/{id}', [HistoryController::class, 'destroy'])
         ->name('history.destroy');
+
+    // CLIENT STOCK OUT REQUEST
+    Route::post('/stock-out', [StockTransactionController::class, 'stockOut'])
+        ->name('stock.out');
 });
+
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN
+| ADMIN SYSTEM
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', AdminMiddleware::class])
+Route::middleware(['auth', 'admin'])
     ->prefix('admin')
+    ->name('admin.')
     ->group(function () {
+
+        // ADMIN DASHBOARD
+        Route::get('/dashboard', function () {
+            return view('admin.dashboard');
+        })->name('dashboard');
 
         // ITEM MASTER
         Route::get('/item-master', [ItemMasterController::class, 'index'])
@@ -97,20 +112,10 @@ Route::middleware(['auth', AdminMiddleware::class])
         Route::post('/item-master/sync', [ItemMasterController::class, 'sync'])
             ->name('item-master.sync');
 
-        // STOCK TRANSACTION
+        // STOCK TRANSACTIONS
         Route::get('/stock-transactions', [StockTransactionController::class, 'index'])
-            ->name('admin.stock.index');
+            ->name('stock.index');
 
         Route::post('/stock-transactions/{id}/confirm', [StockTransactionController::class, 'confirm'])
-            ->name('admin.stock.confirm');
-    });
-
-/*
-|--------------------------------------------------------------------------
-| CLIENT STOCK REQUEST
-|--------------------------------------------------------------------------
-*/
-Route::middleware('auth')->post(
-    '/stock-out',
-    [StockTransactionController::class, 'stockOut']
-)->name('stock.out');
+            ->name('stock.confirm');
+});

@@ -11,25 +11,31 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+                <div class="hidden space-x-8 sm:flex">
+                   <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                        Dashboard
                     </x-nav-link>
+
                     <x-nav-link :href="route('permintaan.create')" :active="request()->routeIs('permintaan.create')">
-                        {{__('Permintaan Barang')}}
+                        Permintaan Barang
                     </x-nav-link>
-                     <x-nav-link :href="route('permintaan.manage')" :active="request()->routeIs('permintaan.manage')">
-                        {{__('Manage Permintaan')}}
+
+                    <x-nav-link :href="route('permintaan.manage')" :active="request()->routeIs('permintaan.manage')">
+                        Manage Permintaan
                     </x-nav-link>
+
                     <x-nav-link :href="route('history.index')" :active="request()->routeIs('history.index')">
-                        {{__('History Export')}}
+                        History Export
                     </x-nav-link>
-                    @if(auth()->check() && auth()->user()->role === 'admin')
-                    <x-nav-link :href="route('item-master.index')" :active="request()->routeIs('item-master.index')">
-                     {{ __('Item Master') }}
-                     </x-nav-link>
+
+                    {{-- ✅ ADMIN ONLY --}}
+                    @if(auth()->user()->role === 'admin')
+                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
+                            Admin Panel
+                        </x-nav-link>
                     @endif
-            </div>
+
+                </div>
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
