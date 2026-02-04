@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\PermintaanBarang;
+use App\Models\PermintaanExportItem;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeWriting;
 use Maatwebsite\Excel\Excel;
@@ -15,7 +15,7 @@ class PermintaanExcelExport implements WithEvents
 
     public function __construct($ids, $docNo)
     {
-        $this->ids = $ids;
+        $this->ids   = $ids;
         $this->docNo = $docNo;
     }
 
@@ -24,6 +24,7 @@ class PermintaanExcelExport implements WithEvents
         return [
             BeforeWriting::class => function (BeforeWriting $event) {
 
+                // TEMPLATE
                 $template = storage_path('app/templates/form_permintaan.xlsx');
 
                 $event->writer->reopen(
@@ -33,12 +34,14 @@ class PermintaanExcelExport implements WithEvents
 
                 $sheet = $event->writer->getSheetByIndex(0)->getDelegate();
 
-                $data = PermintaanBarang::whereIn('id', $this->ids)->get();
+                // ✅ FIX: ambil item dari PermintaanExportItem
+                $data = PermintaanExportItem::whereIn('id', $this->ids)->get();
 
                 $row = 11;
                 $grandTotal = 0;
 
                 foreach ($data as $item) {
+
                     $sheet->setCellValue("B{$row}", $item->nama_barang);
                     $sheet->setCellValue("D{$row}", $item->merk_type);
                     $sheet->setCellValue("E{$row}", $item->jumlah);
@@ -52,10 +55,15 @@ class PermintaanExcelExport implements WithEvents
                     $row++;
                 }
 
+                // TOTAL
                 $sheet->setCellValue("H33", $grandTotal);
+
+                // DOC NO
                 $sheet->setCellValue("K4", $this->docNo);
+
+                // TANGGAL
+                $sheet->setCellValue("K2", now()->format('d/m/Y'));
                 $sheet->setCellValue("J35", 'Sentul, ' . now()->format('d/m/Y'));
-                $sheet->setCellValue("K2",  now()->format('d/m/Y'));
             }
         ];
     }
