@@ -35,7 +35,7 @@
             <!-- PRINT / EXPORT -->
                 <form
                 method="POST"
-                action="{{ route('permintaan.exportExcel') }}"
+                action="{{ route('permintaan.export') }}"
                 onsubmit="event.stopPropagation();"
                 >
                 @csrf

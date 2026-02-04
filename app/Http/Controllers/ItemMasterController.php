@@ -9,7 +9,8 @@ class ItemMasterController extends Controller
 {
     public function index()
     {
-        $items = ItemMaster::orderBy('asset_no')->get();
+        $items = ItemMaster::orderBy('nama_barang')->get();
+        compact('items');
 
         return view('admin.item-master.index');
     }
