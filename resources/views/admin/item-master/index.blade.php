@@ -11,7 +11,7 @@
             </div>
 
             {{-- TOMBOL SYNC --}}
-            <form action="{{ route('item-master/sync') }}" method="POST">
+            <form action="{{ route('admin.item-master.sync') }}" method="POST">
                 @csrf
                 <button
                     type="submit"

@@ -21,7 +21,7 @@ class ItemMasterController extends Controller
         $service->sync($excelPath);
 
         return redirect()
-            ->route('item-master.index')
+            ->route('admin.item-master.index')
             ->with('success', 'Item master berhasil disinkronkan dari Excel');
     }
 }
