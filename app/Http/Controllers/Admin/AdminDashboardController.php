@@ -11,18 +11,19 @@ class AdminDashboardController extends Controller
     public function index()
     {
         return view('admin.dashboard', [
+
+            // Total item master
             'totalItems' => ItemMaster::count(),
 
-            'pendingRequests' => StockTransaction::where('status', 'pending')->count(),
+            // Karena tabel stock_transactions belum punya kolom status
+            'pendingRequests' => StockTransaction::count(),
 
-            'approvedToday' => StockTransaction::whereDate('updated_at', today())
-                ->where('status', 'approved')
-                ->count(),
+            // Dummy sementara
+            'approvedToday' => 0,
+            'stockOutTotal' => 0,
 
-            'stockOutTotal' => StockTransaction::where('type', 'stock_out')->sum('qty'),
-
+            // Recent transactions
             'recentTransactions' => StockTransaction::latest()
-                ->with(['user', 'item'])
                 ->take(5)
                 ->get(),
         ]);

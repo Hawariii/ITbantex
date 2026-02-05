@@ -8,8 +8,8 @@ use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\ItemMasterController;
 use App\Http\Controllers\StockTransactionController;
 use App\Services\ItemMasterSyncService;
-
 use App\Models\PermintaanBarang;
+use App\Http\Controllers\Admin\AdminDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -100,11 +100,6 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
 
-        // ADMIN DASHBOARD
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
-
         // ITEM MASTER
         Route::get('/item-master', [ItemMasterController::class, 'index'])
             ->name('item-master.index');
@@ -114,8 +109,15 @@ Route::middleware(['auth', 'admin'])
 
         // STOCK TRANSACTIONS
         Route::get('/stock-transactions', [StockTransactionController::class, 'index'])
-            ->name('stock.index');
+            ->name('admin.stock.index');
 
         Route::post('/stock-transactions/{id}/confirm', [StockTransactionController::class, 'confirm'])
             ->name('stock.confirm');
+});
+
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+        ->name('admin.dashboard');
+
 });
