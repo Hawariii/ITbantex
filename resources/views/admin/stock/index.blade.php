@@ -1,64 +1,47 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Stock Transaction Requests
-        </h2>
-    </x-slot>
+    <div class="max-w-6xl mx-auto py-10 px-6">
 
-    <div class="py-10 max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">
+            Stock Transactions (Admin)
+        </h1>
 
-        @if(session('success'))
-            <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
-                {{ session('success') }}
-            </div>
-        @endif
+        <div class="bg-white shadow rounded-xl overflow-hidden">
 
-        <div class="bg-white shadow rounded-lg overflow-hidden">
             <table class="w-full text-sm text-left">
-                <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                <thead class="bg-gray-100 text-gray-700">
                     <tr>
-                        <th class="p-3">Item</th>
-                        <th class="p-3">Qty</th>
-                        <th class="p-3">User</th>
-                        <th class="p-3">Status</th>
-                        <th class="p-3">Action</th>
+                        <th class="p-4">Item Code</th>
+                        <th class="p-4">Quantity</th>
+                        <th class="p-4">Status</th>
+                        <th class="p-4">Action</th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    @foreach($transactions as $trx)
-                        <tr class="border-b">
-                            <td class="p-3">{{ $trx->item_name }}</td>
-                            <td class="p-3">{{ $trx->quantity }}</td>
-                            <td class="p-3">{{ $trx->user_name }}</td>
+                    @forelse($transactions as $trx)
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-4">{{ $trx->item_code }}</td>
+                            <td class="p-4">{{ $trx->quantity }}</td>
+                            <td class="p-4 capitalize">{{ $trx->status }}</td>
 
-                            <td class="p-3">
-                                @if($trx->status === 'pending')
-                                    <span class="text-red-600 font-semibold">Pending</span>
-                                @else
-                                    <span class="text-green-600 font-semibold">Confirmed</span>
-                                @endif
-                            </td>
-
-                            <td class="p-3">
-                                <a href="{{ route('admin.stock.show', $trx->id) }}"
+                            <td class="p-4">
+                                <a href="{{ route('admin.stock-transactions.show', $trx->id) }}"
                                    class="text-blue-600 hover:underline">
-                                    Detail
+                                    View Detail
                                 </a>
                             </td>
                         </tr>
-                    @endforeach
-
-                    @if($transactions->count() == 0)
+                    @empty
                         <tr>
-                            <td colspan="5" class="p-4 text-center text-gray-500">
-                                Tidak ada request stock
+                            <td colspan="4" class="p-6 text-center text-gray-500">
+                                No stock transactions found.
                             </td>
                         </tr>
-                    @endif
+                    @endforelse
                 </tbody>
 
             </table>
+
         </div>
     </div>
 </x-app-layout>

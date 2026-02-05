@@ -1,55 +1,84 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Detail Stock Request
-        </h2>
-    </x-slot>
+    <div class="max-w-4xl mx-auto py-10 px-6">
 
-    <div class="py-10 max-w-4xl mx-auto sm:px-6 lg:px-8">
+        <!-- Title -->
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">
+            Stock Transaction Detail
+        </h1>
 
-        <div class="bg-white shadow rounded-lg p-6">
+        <!-- Card -->
+        <div class="bg-white shadow rounded-xl p-6 space-y-4">
 
-            <h3 class="text-lg font-bold mb-4">
-                Request Barang
-            </h3>
-
-            <div class="space-y-2 text-gray-700">
-                <p><b>Item:</b> {{ $transaction->item_name }}</p>
-                <p><b>Quantity:</b> {{ $transaction->quantity }}</p>
-                <p><b>User:</b> {{ $transaction->user_name }}</p>
-                <p><b>Status:</b>
-                    @if($transaction->status === 'pending')
-                        <span class="text-red-600 font-semibold">Pending</span>
-                    @else
-                        <span class="text-green-600 font-semibold">Confirmed</span>
-                    @endif
-                </p>
+            <div class="flex justify-between border-b pb-3">
+                <span class="font-semibold text-gray-600">Item Code:</span>
+                <span class="text-gray-800">{{ $transaction->item_code }}</span>
             </div>
 
-            {{-- Confirm Button --}}
-            @if($transaction->status === 'pending')
-                <form action="{{ route('admin.stock.confirm', $transaction->id) }}"
-                      method="POST"
-                      class="mt-6">
-                    @csrf
+            <div class="flex justify-between border-b pb-3">
+                <span class="font-semibold text-gray-600">Quantity:</span>
+                <span class="text-gray-800">{{ $transaction->quantity }}</span>
+            </div>
 
-                    <button type="submit"
-                        class="px-5 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                        ✅ Confirm Barang Datang
-                    </button>
-                </form>
-            @else
-                <p class="mt-6 text-green-700 font-semibold">
-                    Barang sudah dikonfirmasi datang.
-                </p>
-            @endif
+            <div class="flex justify-between border-b pb-3">
+                <span class="font-semibold text-gray-600">Status:</span>
 
-            <a href="{{ route('admin.stock.index') }}"
-               class="block mt-6 text-blue-600 hover:underline">
-                ← Back to Transactions
-            </a>
+                @if($transaction->status == 'pending')
+                    <span class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm">
+                        Pending
+                    </span>
+                @elseif($transaction->status == 'approved')
+                    <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm">
+                        Approved
+                    </span>
+                @else
+                    <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm">
+                        Rejected
+                    </span>
+                @endif
+            </div>
+
+            <div class="flex justify-between">
+                <span class="font-semibold text-gray-600">Requested At:</span>
+                <span class="text-gray-800">{{ $transaction->created_at }}</span>
+            </div>
 
         </div>
 
-    </div>
-</x-app-layout>
+        <!-- Action Buttons -->
+        @if($transaction->status == 'pending')
+            <div class="flex gap-4 mt-6">
+
+                <!-- Approve -->
+                <form method="POST"
+                      action="{{ route('admin.stock-transactions.confirm', $transaction->id) }}">
+                    @csrf
+                    <button
+                        type="submit"
+                        class="px-5 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition"
+                    >
+                        Approve
+                    </button>
+                </form>
+
+                <!-- Reject -->
+                <form method="POST"
+                      action="{{ route('admin.stock-transactions.reject', $transaction->id) }}">
+                    @csrf
+                    <button
+                        type="submit"
+                        class="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+                    >
+                        Reject
+                    </button>
+                </form>
+
+            </div>
+        @else
+            <p class="mt-6 text-gray-600 italic">
+                Transaction already processed.
+            </p>
+        @endif
+
+        <!-- Back -->
+        <div class="mt-8">
+            <a href="{{ route

@@ -19,7 +19,7 @@ class StockTransactionController extends Controller
     }
 
     /**
-     * ADMIN - Show detail transaksi
+     * ADMIN - Show detail transaksi stock
      */
     public function show($id)
     {
@@ -29,35 +29,41 @@ class StockTransactionController extends Controller
     }
 
     /**
-     * ADMIN - Confirm barang datang
+     * ADMIN - Approve stock transaction
      */
     public function confirm($id)
     {
         $transaction = StockTransaction::findOrFail($id);
 
-        // kalau sudah confirmed jangan dobel
-        if ($transaction->status === 'confirmed') {
-            return back()->with('error', 'Request ini sudah dikonfirmasi.');
+        // update status jadi approved
+        $transaction->status = 'approved';
+        $transaction->save();
+
+        // update stock item master
+        $item = ItemMaster::where('item_code', $transaction->item_code)->first();
+
+        if ($item) {
+            $item->stock += $transaction->quantity;
+            $item->save();
         }
 
-        // cari item di master
-        $item = ItemMaster::where('nama_barang', $transaction->item_name)->first();
+        return redirect()
+            ->route('admin.stock-transactions.index')
+            ->with('success', 'Stock transaction approved!');
+    }
 
-        if (!$item) {
-            return back()->with('error', 'Item tidak ditemukan di Item Master.');
-        }
+    /**
+     * ADMIN - Reject stock transaction
+     */
+    public function reject($id)
+    {
+        $transaction = StockTransaction::findOrFail($id);
 
-        // tambah stock balik
-        $item->stock += $transaction->quantity;
-        $item->save();
-
-        // update status
-        $transaction->status = 'confirmed';
-        $transaction->confirmed_at = now();
+        $transaction->status = 'rejected';
         $transaction->save();
 
         return redirect()
-            ->route('admin.stock.index')
-            ->with('success', 'Barang sudah dikonfirmasi datang. Stock bertambah kembali.');
+            ->route('admin.stock-transactions.index')
+            ->with('error', 'Stock transaction rejected!');
     }
 }
