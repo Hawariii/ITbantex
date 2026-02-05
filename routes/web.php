@@ -6,10 +6,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PermintaanBarangController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\ItemMasterController;
-use App\Http\Controllers\StockTransactionController;
 use App\Services\ItemMasterSyncService;
 use App\Models\PermintaanBarang;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\StockTransactionController;
+use App\Http\Middleware\AdminMiddleware;
 
 /*
 |--------------------------------------------------------------------------
@@ -95,7 +96,7 @@ Route::middleware('auth')->group(function () {
 | ADMIN SYSTEM
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'admin'])
+Route::middleware(['auth', AdminMiddleware::class])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -106,13 +107,6 @@ Route::middleware(['auth', 'admin'])
 
         Route::post('/item-master/sync', [ItemMasterController::class, 'sync'])
             ->name('item-master.sync');
-
-        // STOCK TRANSACTIONS
-        Route::get('/stock-transactions', [StockTransactionController::class, 'index'])
-            ->name('admin.stock.index');
-
-        Route::post('/stock-transactions/{id}/confirm', [StockTransactionController::class, 'confirm'])
-            ->name('stock.confirm');
 });
 
 Route::prefix('admin')->middleware(['auth'])->group(function () {
@@ -121,3 +115,17 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         ->name('admin.dashboard');
 
 });
+
+Route::middleware(['auth', AdminMiddleware::class])
+    ->prefix('admin')
+    ->group(function () {
+
+        Route::get('/stock-transactions', [StockTransactionController::class, 'index'])
+            ->name('admin.stock.index');
+
+        Route::get('/stock-transactions/{id}', [StockTransactionController::class, 'show'])
+            ->name('admin.stock.show');
+
+        Route::post('/stock-transactions/{id}/confirm', [StockTransactionController::class, 'confirm'])
+            ->name('admin.stock.confirm');
+    });

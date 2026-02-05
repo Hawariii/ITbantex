@@ -2,78 +2,62 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\StockTransaction;
 use App\Models\ItemMaster;
+use Illuminate\Http\Request;
 
 class StockTransactionController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | CLIENT REQUEST STOCK OUT
-    |--------------------------------------------------------------------------
-    */
-    public function stockOut(Request $request)
-    {
-        $request->validate([
-            'item_id' => 'required',
-            'qty'     => 'required|integer|min:1'
-        ]);
-
-        $item = ItemMaster::findOrFail($request->item_id);
-
-        StockTransaction::create([
-            'doc_no'    => 'ST-' . now()->format('YmdHis'),
-            'item_id'   => $item->id,
-            'item_name' => $item->nama_barang,
-            'qty'       => $request->qty,
-            'status'    => 'pending',
-        ]);
-
-        return back()->with('success', 'Request stock-out berhasil dikirim!');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | ADMIN VIEW ALL TRANSACTIONS
-    |--------------------------------------------------------------------------
-    */
+    /**
+     * ADMIN - List semua request stock
+     */
     public function index()
     {
         $transactions = StockTransaction::latest()->get();
 
-        return view('admin.stock-transactions.index', compact('transactions'));
+        return view('admin.stock.index', compact('transactions'));
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | ADMIN CONFIRM STOCK OUT (REAL STOCK UPDATE)
-    |--------------------------------------------------------------------------
-    */
+    /**
+     * ADMIN - Show detail transaksi
+     */
+    public function show($id)
+    {
+        $transaction = StockTransaction::findOrFail($id);
+
+        return view('admin.stock.show', compact('transaction'));
+    }
+
+    /**
+     * ADMIN - Confirm barang datang
+     */
     public function confirm($id)
     {
-        $trx = StockTransaction::findOrFail($id);
+        $transaction = StockTransaction::findOrFail($id);
 
-        if ($trx->status === 'confirmed') {
-            return back()->with('error', 'Sudah dikonfirmasi!');
+        // kalau sudah confirmed jangan dobel
+        if ($transaction->status === 'confirmed') {
+            return back()->with('error', 'Request ini sudah dikonfirmasi.');
         }
 
-        $item = ItemMaster::findOrFail($trx->item_id);
+        // cari item di master
+        $item = ItemMaster::where('nama_barang', $transaction->item_name)->first();
 
-        // ❌ kalau stock kurang
-        if ($item->stock < $trx->qty) {
-            return back()->with('error', 'Stock tidak cukup!');
+        if (!$item) {
+            return back()->with('error', 'Item tidak ditemukan di Item Master.');
         }
 
-        // ✅ kurangi stock
-        $item->stock -= $trx->qty;
+        // tambah stock balik
+        $item->stock += $transaction->quantity;
         $item->save();
 
-        // ✅ update transaksi
-        $trx->update([
-            'status' => 'confirmed'
-        ]);
+        // update status
+        $transaction->status = 'confirmed';
+        $transaction->confirmed_at = now();
+        $transaction->save();
 
-        return back()->with('success', 'Stock berhasil dikurangi & transaksi confirmed!');
+        return redirect()
+            ->route('admin.stock.index')
+            ->with('success', 'Barang sudah dikonfirmasi datang. Stock bertambah kembali.');
     }
 }
