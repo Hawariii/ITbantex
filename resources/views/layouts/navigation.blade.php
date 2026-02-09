@@ -27,7 +27,9 @@
                     <x-nav-link :href="route('history.index')" :active="request()->routeIs('history.index')">
                         History Export
                     </x-nav-link>
-
+                    <x-nav-link :href="route('permintaan.stock')" :active="request()->routeIs('permintaan.stock')">
+                        Stock Item
+                    </x-nav-link>
                     {{-- ✅ ADMIN ONLY --}}
                     @if(auth()->user()->role === 'admin')
                         <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">

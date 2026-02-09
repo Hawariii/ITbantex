@@ -11,7 +11,14 @@ class ItemMasterController extends Controller
     {
         $items = ItemMaster::orderBy('asset_no')->get();
 
-        return view('item-master.index', compact('items'));
+        return view('admin.item-master.index', compact('items'));
+    }
+
+    public function stock()
+    {
+        $items = ItemMaster::orderBy('asset_no')->get();
+
+        return view('permintaan.stock', compact('items'));
     }
 
     public function sync(ItemMasterSyncService $service)

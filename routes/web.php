@@ -72,6 +72,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/permintaan/{id}', [PermintaanBarangController::class, 'destroy'])
         ->name('permintaan.destroy');
 
+    Route::get('permintaan/stock-item', [ItemMasterController::class, 'stock'])
+         ->name('permintaan.stock');
+
     // HISTORY
     Route::get('/history', [HistoryController::class, 'index'])
         ->name('history.index');
