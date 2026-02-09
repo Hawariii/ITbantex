@@ -116,21 +116,19 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
 });
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', AdminMiddleware::class])
+    ->prefix('admin')
+    ->group(function () {
 
-    Route::get('/stock-transactions', [StockTransactionController::class, 'index'])
-        ->name('stock-transactions.index');
+        Route::get('/stock-transactions', [StockTransactionController::class, 'index'])
+            ->name('admin.stock.index');
 
-    // SHOW DETAIL
-    Route::get('/stock-transactions/{id}', [StockTransactionController::class, 'show'])
-        ->name('stock-transactions.show');
+        Route::get('/stock-transactions/{id}', [StockTransactionController::class, 'show'])
+            ->name('admin.stock.show');
 
-    // APPROVE
-    Route::post('/stock-transactions/{id}/confirm', [StockTransactionController::class, 'confirm'])
-        ->name('stock-transactions.confirm');
+        Route::post('/stock-transactions/{id}/confirm', [StockTransactionController::class, 'confirm'])
+            ->name('admin.stock.confirm');
 
-    // REJECT
-    Route::post('/stock-transactions/{id}/reject', [StockTransactionController::class, 'reject'])
-        ->name('stock-transactions.reject');
-
-});
+        Route::post('/stock-transactions/{id}/reject', [StockTransactionController::class, 'reject'])
+            ->name('admin.stock.reject');
+    });

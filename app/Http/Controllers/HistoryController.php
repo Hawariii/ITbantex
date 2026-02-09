@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PermintaanExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PermintaanHistoryExcelExport;
+use App\Services\ExportService;
 
 class HistoryController extends Controller
 {

@@ -2,55 +2,45 @@
 
 namespace App\Services;
 
-use DB;
 use App\Models\PermintaanBarang;
 use App\Models\PermintaanExport;
 use App\Models\PermintaanExportItem;
+use App\Models\StockTransaction;
+use App\Models\ItemMaster;
+use Illuminate\Support\Facades\DB;
 
 class ExportService
 {
-    public function exportByDocNo(string $docNo, int $userId): PermintaanExport
+    public function exportByDocNo(string $docNo, int $userId)
     {
-        /**
-         * ==============================
-         * REPRINT CASE (SUDAH PERNAH EXPORT)
-         * ==============================
-         */
-        $existingExport = PermintaanExport::where('doc_no', $docNo)
-            ->with('items')
-            ->first();
+        return DB::transaction(function () use ($docNo, $userId) {
 
-        if ($existingExport && $existingExport->items->isNotEmpty()) {
-            return $existingExport;
-        }
+            // ===============================
+            // 1. Ambil semua permintaan barang
+            // ===============================
+            $items = PermintaanBarang::where('doc_no', $docNo)
+                ->where('user_id', $userId)
+                ->get();
 
-        /**
-         * ==============================
-         * AMBIL DATA PERMINTAAN
-         * ==============================
-         */
-        $items = PermintaanBarang::where('user_id', $userId)
-            ->where('doc_no', $docNo)
-            ->get();
+            if ($items->isEmpty()) {
+                throw new \Exception("Data permintaan dengan doc_no {$docNo} tidak ditemukan.");
+            }
 
-        if ($items->isEmpty()) {
-            throw new \Exception('Data permintaan tidak ditemukan');
-        }
-
-        /**
-         * ==============================
-         * EXPORT BARU
-         * ==============================
-         */
-        return DB::transaction(function () use ($items, $docNo, $userId) {
-
+            // ===============================
+            // 2. Buat header export
+            // ===============================
             $export = PermintaanExport::create([
-                'user_id'     => $userId,
                 'doc_no'      => $docNo,
+                'user_id'     => $userId,
                 'exported_at' => now(),
             ]);
 
+            // ===============================
+            // 3. Loop item → simpan export item
+            // ===============================
             foreach ($items as $item) {
+
+                // simpan snapshot item export
                 PermintaanExportItem::create([
                     'export_id'    => $export->id,
                     'nama_barang'  => $item->nama_barang,
@@ -62,9 +52,33 @@ class ExportService
                     'arrival_date' => $item->arrival_date,
                     'keterangan'   => $item->keterangan,
                 ]);
+
+                // ===============================
+                // 4. AUTO STOCK OUT TRANSACTION
+                // ===============================
+
+                // cari item master
+                $master = ItemMaster::where('nama_barang', $item->nama_barang)->first();
+
+                if (!$master) {
+                    continue; // skip kalau tidak ada di master
+                }
+
+                // kurangi stock langsung
+                $master->quantity -= $item->jumlah;
+                $master->save();
+
+                // buat transaksi pending admin
+                StockTransaction::create([
+                    'item_id'   => $master->id,
+                    'quantity'  => $item->jumlah,
+                    'type'      => 'OUT',
+                    'status'    => 'pending',
+                    'notes'     => "Permintaan export: {$docNo}",
+                ]);
             }
 
-            return $export->load('items');
+            return $export;
         });
     }
 }

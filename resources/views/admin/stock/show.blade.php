@@ -1,84 +1,77 @@
 <x-app-layout>
-    <div class="max-w-4xl mx-auto py-10 px-6">
+    <div class="max-w-4xl mx-auto py-10">
 
-        <!-- Title -->
-        <h1 class="text-2xl font-bold mb-6 text-gray-800">
+        {{-- TITLE --}}
+        <h1 class="text-2xl font-bold mb-6">
             Stock Transaction Detail
         </h1>
 
-        <!-- Card -->
-        <div class="bg-white shadow rounded-xl p-6 space-y-4">
+        {{-- CARD DETAIL --}}
+        <div class="bg-white shadow rounded-lg p-6 space-y-4">
 
-            <div class="flex justify-between border-b pb-3">
-                <span class="font-semibold text-gray-600">Item Code:</span>
-                <span class="text-gray-800">{{ $transaction->item_code }}</span>
+            <div>
+                <p class="text-gray-600 text-sm">Item Code</p>
+                <p class="font-semibold text-lg">
+                    {{ $transaction->item_code }}
+                </p>
             </div>
 
-            <div class="flex justify-between border-b pb-3">
-                <span class="font-semibold text-gray-600">Quantity:</span>
-                <span class="text-gray-800">{{ $transaction->quantity }}</span>
+            <div>
+                <p class="text-gray-600 text-sm">Quantity</p>
+                <p class="font-semibold text-lg">
+                    {{ $transaction->quantity }}
+                </p>
             </div>
 
-            <div class="flex justify-between border-b pb-3">
-                <span class="font-semibold text-gray-600">Status:</span>
+            <div>
+                <p class="text-gray-600 text-sm">Status</p>
 
-                @if($transaction->status == 'pending')
-                    <span class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm">
+                @if($transaction->status === 'pending')
+                    <span class="px-3 py-1 rounded bg-yellow-200 text-yellow-800 text-sm font-semibold">
                         Pending
                     </span>
-                @elseif($transaction->status == 'approved')
-                    <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm">
+                @elseif($transaction->status === 'approved')
+                    <span class="px-3 py-1 rounded bg-green-200 text-green-800 text-sm font-semibold">
                         Approved
                     </span>
                 @else
-                    <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm">
-                        Rejected
+                    <span class="px-3 py-1 rounded bg-gray-200 text-gray-700 text-sm font-semibold">
+                        {{ ucfirst($transaction->status) }}
                     </span>
                 @endif
             </div>
 
-            <div class="flex justify-between">
-                <span class="font-semibold text-gray-600">Requested At:</span>
-                <span class="text-gray-800">{{ $transaction->created_at }}</span>
+            <div>
+                <p class="text-gray-600 text-sm">Created At</p>
+                <p class="font-semibold">
+                    {{ $transaction->created_at->format('d M Y - H:i') }}
+                </p>
             </div>
 
         </div>
 
-        <!-- Action Buttons -->
-        @if($transaction->status == 'pending')
-            <div class="flex gap-4 mt-6">
+        {{-- ACTION BUTTON --}}
+        <div class="mt-6 flex gap-3">
 
-                <!-- Approve -->
-                <form method="POST"
-                      action="{{ route('admin.stock-transactions.confirm', $transaction->id) }}">
+            {{-- BACK BUTTON --}}
+            <a href="{{ route('admin.stock.index') }}"
+               class="px-4 py-2 rounded bg-gray-500 text-white hover:bg-gray-600">
+                Back
+            </a>
+
+            {{-- CONFIRM BUTTON --}}
+            @if($transaction->status === 'pending')
+                <form action="{{ route('admin.stock.confirm', $transaction->id) }}" method="POST">
                     @csrf
-                    <button
-                        type="submit"
-                        class="px-5 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition"
-                    >
-                        Approve
+
+                    <button type="submit"
+                            class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
+                        Confirm Barang Datang
                     </button>
                 </form>
+            @endif
 
-                <!-- Reject -->
-                <form method="POST"
-                      action="{{ route('admin.stock-transactions.reject', $transaction->id) }}">
-                    @csrf
-                    <button
-                        type="submit"
-                        class="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
-                    >
-                        Reject
-                    </button>
-                </form>
+        </div>
 
-            </div>
-        @else
-            <p class="mt-6 text-gray-600 italic">
-                Transaction already processed.
-            </p>
-        @endif
-
-        <!-- Back -->
-        <div class="mt-8">
-            <a href="{{ route
+    </div>
+</x-app-layout>

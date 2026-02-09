@@ -25,7 +25,7 @@
                             <td class="p-4 capitalize">{{ $trx->status }}</td>
 
                             <td class="p-4">
-                                <a href="{{ route('admin.stock-transactions.show', $trx->id) }}"
+                                <a href="{{ route('admin.stock.show', $trx->id) }}"
                                    class="text-blue-600 hover:underline">
                                     View Detail
                                 </a>
