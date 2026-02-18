@@ -52,34 +52,39 @@ Follow this exact order after cloning the project:
 ## Installation (Full Setup Order)
 Follow this exact order after cloning the project:
 
-```bash
-### Clone Reposity
+### 1. Clone Reposity
 
 ```bash
 git clone https://github.com/Hawariii/ITbantex.git
 cd ITbantex
+```
 
 ### 2. Install Backend Dependencies
 
 ```bash
 composer install
+```
 
 if you get an error
 
 uncomment:
-```\xampp\php\php.ini
+```bash
+\xampp\php\php.ini
 extension=gd
 extension=zip
+```
 
 ### 3. Setup ENV File
 
 ```bash
 cp .env.example .nv
+```
 
 ### 4. Generate App Key
 
 ```bash
 php artisan key:generate
+```
 
 ### 5. Configure Database
 
@@ -94,11 +99,13 @@ Then create database in phpMyAdmin like in DB_DATABASE
 
 ```bash
 php artisan serve
+```
 
 ### 8. Install Frontend Depedencies
 
 ```bash
 npm install
+```
 
 ### 9. Start Server
 
@@ -107,6 +114,7 @@ npm run dev
 php artisan serve
 
 open http://127.0.0.1:8000
+```
 
 ## Notes
 - Excel export requires gd + zip extensions enable
