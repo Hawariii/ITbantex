@@ -89,9 +89,11 @@ php artisan key:generate
 ### 5. Configure Database
 
 edit .env :
+```bash
 DB_DATABASE=your db
 DB_USERNAME=your username
 DB_PASSWORD=
+```
 
 Then create database in phpMyAdmin like in DB_DATABASE
 
