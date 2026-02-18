@@ -46,10 +46,6 @@ Make sure you already have:
 ---
 
 ## Installation (Full Setup Order)
-
-Follow this exact order after cloning the project:
-
-## Installation (Full Setup Order)
 Follow this exact order after cloning the project:
 
 ### 1. Clone Reposity
