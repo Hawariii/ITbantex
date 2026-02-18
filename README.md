@@ -49,7 +49,11 @@ Make sure you already have:
 
 Follow this exact order after cloning the project:
 
-### 1. Clone Repository
+## Installation (Full Setup Order)
+Follow this exact order after cloning the project:
+
+```bash
+### Clone Reposity
 
 ```bash
 git clone https://github.com/Hawariii/ITbantex.git
