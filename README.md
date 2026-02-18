@@ -73,7 +73,7 @@ extension=zip
 ### 3. Setup ENV File
 
 ```bash
-cp .env.example .nv
+cp .env.example .env
 ```
 
 ### 4. Generate App Key
