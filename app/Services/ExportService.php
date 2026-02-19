@@ -6,6 +6,8 @@ use App\Models\PermintaanBarang;
 use App\Models\PermintaanExport;
 use App\Models\PermintaanExportItem;
 use Illuminate\Support\Facades\DB;
+use App\Models\StockTransaction;
+use App\Models\ItemMaster;
 
 class ExportService
 {
@@ -47,6 +49,21 @@ class ExportService
                         'supplier'     => $item->supplier,
                         'arrival_date' => $item->arrival_date,
                         'keterangan'   => $item->keterangan,
+                    ]);
+
+                    // UPDATE STOCK TRANSACTION
+                    $master = ItemMaster::where('nama_barang', 
+                    $item->nama_barang) -> firstOrFail();
+
+                    if (!$master) {
+                        continue;
+                    }
+                    StockTransaction::create([
+                        'item_id'     => $master->id,
+                        'quantity'    => $item->jumlah,
+                        'type'        => 'out',
+                        'status'      => 'pending',
+                        'created_by'  => $userId,
                     ]);
                 }
             }
