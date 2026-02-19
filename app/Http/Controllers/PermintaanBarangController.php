@@ -148,23 +148,18 @@ public function exportExcel(
         'doc_no' => 'required|string',
     ]);
 
-    try {
-        $export = $exportService->exportByDocNo(
-            $request->doc_no,
-            auth()->id()
-        );
+    $export = $exportService->exportByDocNo(
+        $request->doc_no,
+        auth()->id()
+    );
 
-        return Excel::download(
-            new PermintaanExcelExport(
-                $export->items->pluck('id')->toArray(),
-                $export->doc_no
-            ),
-            $export->doc_no . '.xlsx'
-        );
-
-    } catch (\Exception $e) {
-        return back()->with('error', $e->getMessage());
-    }
+    return Excel::download(
+        new PermintaanExcelExport(
+            $export->items->pluck('id')->toArray(),
+            $export->doc_no
+        ),
+        $export->doc_no . '.xlsx'
+    );
 }
 
 }
