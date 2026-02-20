@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PermintaanExcelExport;
 use App\Models\PermintaanExportItem;
 use App\Models\PermintaanExport;
+use App\Models\ItemMaster;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Services\DocNoGeneratorService;
@@ -19,7 +20,10 @@ class PermintaanBarangController extends Controller{
     public function create(DocNoGeneratorService $docNoService)
     {
          $docNo = $docNoService->generate();
-         return view('permintaan.create', compact('docNo'));
+
+         $items = ItemMaster::select('nama_barang')->get();
+
+         return view('permintaan.create', compact('docNo', 'items'));
     }
 
 public function store(Request $request)
@@ -148,18 +152,26 @@ public function exportExcel(
         'doc_no' => 'required|string',
     ]);
 
-    $export = $exportService->exportByDocNo(
-        $request->doc_no,
-        auth()->id()
-    );
+    try {
 
-    return Excel::download(
-        new PermintaanExcelExport(
-            $export->items->pluck('id')->toArray(),
-            $export->doc_no
-        ),
-        $export->doc_no . '.xlsx'
-    );
+        $export = $exportService->exportByDocNo(
+            $request->doc_no,
+            auth()->id()
+        );
+
+        return Excel::download(
+            new PermintaanExcelExport(
+                $export->items->pluck('id')->toArray(),
+                $export->doc_no
+            ),
+            $export->doc_no . '.xlsx'
+        );
+
+    } catch (\Exception $e) {
+
+        return redirect()->back()
+            ->with('error', $e->getMessage());
+    }
 }
 
 }
