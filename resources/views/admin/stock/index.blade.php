@@ -63,7 +63,7 @@
 
                                 <!-- Confirm -->
                                 <form method="POST"
-                                      action="{{ route('admin.stock.confirm', $trx->id) }}">
+                                      action="{{ route('admin.stock.confirm', $transaction->id) }}">
                                     @csrf
                                     <button type="submit"
                                         class="px-3 py-1 bg-green-600 text-white rounded text-sm">

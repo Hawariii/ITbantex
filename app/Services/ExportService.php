@@ -15,7 +15,7 @@ class ExportService
     {
         return DB::transaction(function () use ($docNo, $userId) {
 
-            // 1. Ambil semua item permintaan
+            // 1. Ambil semua item berdasarkan doc_no & user
             $items = PermintaanBarang::where('doc_no', $docNo)
                 ->where('user_id', $userId)
                 ->get();
@@ -24,12 +24,12 @@ class ExportService
                 throw new \Exception("Doc {$docNo} tidak ditemukan.");
             }
 
-            // 2. Cari apakah export sudah pernah dibuat
+            // 2. Cek apakah export sudah pernah dibuat
             $export = PermintaanExport::where('doc_no', $docNo)
                 ->where('user_id', $userId)
                 ->first();
 
-            // 3. Kalau belum → buat export + snapshot items
+            // 3. Jika belum ada export → buat baru
             if (!$export) {
 
                 $export = PermintaanExport::create([
@@ -39,6 +39,8 @@ class ExportService
                 ]);
 
                 foreach ($items as $item) {
+
+                    // Snapshot item ke export_items
                     PermintaanExportItem::create([
                         'export_id'    => $export->id,
                         'nama_barang'  => $item->nama_barang,
@@ -51,24 +53,30 @@ class ExportService
                         'keterangan'   => $item->keterangan,
                     ]);
 
-                    // UPDATE STOCK TRANSACTION
-                    $master = ItemMaster::where('nama_barang', 
-                    $item->nama_barang) -> firstOrFail();
+                    // Cari item di master
+                    $master = ItemMaster::where('nama_barang', $item->nama_barang)->first();
 
+                    // Kalau tidak ada di master, skip
                     if (!$master) {
                         continue;
                     }
+                    if ($master->stock < $item->jumlah) {
+                        throw new \Exception("Stock untuk {$master->nama_barang} tidak mencukupi.");
+                    }
+                    $master->stock -= $item->jumlah;
+                    $master->save();
+
+                    // Buat stock transaction (pending)
                     StockTransaction::create([
-                        'item_id'     => $master->id,
-                        'quantity'    => $item->jumlah,
-                        'type'        => 'out',
-                        'status'      => 'pending',
-                        'created_by'  => $userId,
+                        'item_id'    => $master->id,
+                        'quantity'   => $item->jumlah,
+                        'type'       => 'out',
+                        'status'     => 'pending',
+                        'created_by' => $userId,
                     ]);
                 }
             }
 
-            // 4. Return export untuk dipakai download
             return $export;
         });
     }

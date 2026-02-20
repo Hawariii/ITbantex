@@ -9,7 +9,7 @@ use App\Http\Controllers\ItemMasterController;
 use App\Services\ItemMasterSyncService;
 use App\Models\PermintaanBarang;
 use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\StockTransactionController;
+use App\Http\Controllers\Admin\StockTransactionController;
 use App\Http\Middleware\AdminMiddleware;
 
 /*
@@ -119,20 +119,19 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
 });
 
-Route::middleware(['auth', 'is_admin'])
-    ->prefix('admin')
-    ->name('admin.')
+Route::prefix('admin')
+    ->middleware(['auth'])
     ->group(function () {
 
         Route::get('/stock-transactions', 
             [StockTransactionController::class, 'index']
-        )->name('stock.index');
+        )->name('admin.stock.index');
 
         Route::post('/stock-transactions/{id}/confirm', 
             [StockTransactionController::class, 'confirm']
-        )->name('stock.confirm');
-        
+        )->name('admin.stock.confirm');
+
         Route::get('/stock-transactions/{id}', 
             [StockTransactionController::class, 'show']
-        )->name('stock.show');
+        )->name('admin.stock.show');
 });

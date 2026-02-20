@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\StockTransaction;
+use App\Models\ItemMaster;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StockTransactionController extends Controller
 {
@@ -24,49 +26,35 @@ class StockTransactionController extends Controller
     /**
      * ADMIN - Confirm transaction
      */
-    public function confirm($id)
+        public function confirm($id)
+        {
+            DB::transaction(function () use ($id) {
+
+                $transaction = StockTransaction::lockForUpdate()->findOrFail($id);
+
+                if ($transaction->status === 'completed') {
+                    throw new \Exception('Transaksi sudah dikonfirmasi.');
+                }
+
+                $item = ItemMaster::lockForUpdate()->findOrFail($transaction->item_id);
+
+                // Tambah stock kembali (barang pengganti datang)
+                $item->stock += $transaction->quantity;
+                $item->save();
+
+                $transaction->status = 'completed';
+                $transaction->save();
+            });
+
+            return back()->with('success', 'Transaksi berhasil dikonfirmasi.');
+        }
+    /**
+     * ADMIN - Show detail transaction
+     */
+    public function show($id)
     {
-        $trx = StockTransaction::with('item')->findOrFail($id);
+        $transaction = StockTransaction::with('item')->findOrFail($id);
 
-        // kalau sudah completed, stop
-        if ($trx->status === 'completed') {
-            return back()->with('error', 'Transaction already confirmed.');
-        }
-
-        $item = $trx->item;
-
-        // ==========================
-        // APPLY STOCK CHANGE
-        // ==========================
-
-        if ($trx->type === 'out') {
-            // kurangi stock
-            $item->quantity -= $trx->quantity;
-        }
-
-        if ($trx->type === 'in') {
-            // tambah stock
-            $item->quantity += $trx->quantity;
-        }
-
-        $item->save();
-
-        // ==========================
-        // UPDATE TRANSACTION STATUS
-        // ==========================
-        $trx->update([
-            'status'       => 'completed',
-            'confirmed_by' => auth()->id(),
-            'confirmed_at' => now(),
-        ]);
-
-        return back()->with('success', 'Stock transaction confirmed successfully!');
+        return view('admin.stock.show', compact('transaction'));
     }
-    
-public function show($id)
-{
-    $transaction = StockTransaction::with('item')->findOrFail($id);
-
-    return view('admin.stock.show', compact('transaction'));
-}
 }
