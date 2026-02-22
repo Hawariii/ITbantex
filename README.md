@@ -96,7 +96,7 @@ Then create database in phpMyAdmin like in DB_DATABASE
 ### 7. Run Migrations
 
 ```bash
-php artisan serve
+php artisan migrate
 ```
 
 ### 8. Install Frontend Depedencies
@@ -108,6 +108,7 @@ npm install
 ### 9. Start Server
 
 ```bash
+npn run build
 npm run dev
 php artisan serve
 
