@@ -30,7 +30,7 @@
 
             <div class="text-left md:text-right">
                 <p class="text-xs text-gray-400 uppercase">Doc No</p>
-                <p class="text-2xl font-bold text-blue-600 tracking-widest">
+                <p class="text-2xl font-bold text-sky-600 tracking-widest">
                     {{ $docNo }}
                 </p>
             </div>
@@ -55,12 +55,12 @@
                         name="supplier"
                         placeholder="Supplier"
                         required
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
 
                     <input type="date"
                         name="arrival_date"
                         required
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
                 </div>
             </div>
 
@@ -74,7 +74,7 @@
 
                     <button type="button"
                         onclick="addItem()"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition">
+                        class="px-4 py-2 bg-sky-500 text-white rounded-lg text-sm hover:bg-sky-600 transition">
                         + Tambah Barang
                     </button>
                 </div>
