@@ -46,7 +46,7 @@ public function store(Request $request)
         'keterangan'     => 'nullable|string',
     ]);
 
-    // ✅ generate doc_no sekali
+    // generate doc_no
     $docNo = (new DocNoGeneratorService())->generate();
 
     foreach ($request->nama_barang as $index => $nama) {

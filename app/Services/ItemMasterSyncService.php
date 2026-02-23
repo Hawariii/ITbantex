@@ -16,8 +16,7 @@ class ItemMasterSyncService
         $spreadsheet = IOFactory::load($excelPath);
         $sheet = $spreadsheet->getActiveSheet();
 
-        /**
-         * Mapping sesuai data lu:
+        /**:
          * C = asset_no
          * G = nama_barang
          * H = type
