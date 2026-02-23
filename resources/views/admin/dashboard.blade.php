@@ -1,7 +1,7 @@
 <x-app-layout>
 
     <x-slot name="header">
-        <div class="flex items-center justify-between">
+        <div class="bg-white rounded-2xl shadow-sm border p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <h2 class="text-2xl font-bold text-gray-800">
                 Admin Dashboard
             </h2>

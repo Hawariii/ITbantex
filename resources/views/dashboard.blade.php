@@ -7,7 +7,7 @@
         <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-gray-800">
-                    Dashboard Bantex
+                    Dashboard
                 </h1>
                 <p class="text-gray-500 text-sm">
                     Ringkasan aktivitas permintaan barang
@@ -15,7 +15,7 @@
             </div>
 
             <a href="{{ route('permintaan.create') }}"
-               class="px-5 py-3 bg-indigo-600 text-white rounded-xl shadow hover:bg-indigo-700 transition">
+               class="px-5 py-3 bg-sky-500 text-white rounded-xl shadow hover:bg-sky-600 transition">
                 + Tambah Permintaan
             </a>
         </div>
@@ -40,7 +40,7 @@
 
             <div class="bg-white p-6 rounded-2xl shadow-lg">
                 <p class="text-sm text-gray-500">Total Nominal</p>
-                <h2 class="text-3xl font-bold text-indigo-600 mt-2">
+                <h2 class="text-3xl font-bold text-sky-500 mt-2">
                     Rp {{ number_format($data->sum('total')) }}
                 </h2>
             </div>
@@ -101,7 +101,7 @@
                                 Rp {{ number_format($row->harga_satuan) }}
                             </td>
 
-                            <td class="py-3 px-4 font-semibold text-indigo-600">
+                            <td class="py-3 px-4 font-semibold text-sky-500">
                                 Rp {{ number_format($row->total) }}
                             </td>
 
