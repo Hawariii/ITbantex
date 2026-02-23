@@ -1,69 +1,118 @@
 <x-app-layout>
-    {{-- Header --}}
+
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Admin Dashboard
-        </h2>
+        <div class="bg-white rounded-2xl shadow-sm border p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <h2 class="text-2xl font-bold text-gray-800">
+                Admin Dashboard
+            </h2>
+
+            <span class="text-sm text-gray-500">
+                {{ now()->format('l, d F Y') }}
+            </span>
+        </div>
     </x-slot>
 
-    {{-- Content --}}
     <div class="py-10">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
 
-            {{-- Cards --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {{-- STAT CARDS --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                {{-- Total Items --}}
-                <div class="bg-white shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-700">
+                {{-- TOTAL ITEMS --}}
+                <div class="bg-white rounded-2xl shadow-sm border p-6 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500">
                         Total Items
-                    </h3>
-                    <p class="text-3xl font-bold mt-2">
+                    </div>
+                    <div class="mt-2 text-3xl font-bold text-gray-800">
                         {{ $totalItems }}
-                    </p>
+                    </div>
                 </div>
 
-                {{-- Pending Requests --}}
-                <div class="bg-white shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-700">
+                {{-- PENDING REQUEST --}}
+                <div class="bg-white rounded-2xl shadow-sm border p-6 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500">
                         Pending Stock Requests
-                    </h3>
-                    <p class="text-3xl font-bold mt-2 text-red-600">
+                    </div>
+                    <div class="mt-2 text-3xl font-bold text-red-600">
                         {{ $pendingRequests }}
-                    </p>
+                    </div>
+                </div>
+
+                {{-- LOW STOCK (OPTIONAL IF ADA DATA) --}}
+                <div class="bg-white rounded-2xl shadow-sm border p-6 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500">
+                        Low Stock Items
+                    </div>
+                    <div class="mt-2 text-3xl font-bold text-yellow-600">
+                        {{ $lowStock ?? 0 }}
+                    </div>
                 </div>
 
             </div>
 
-            {{-- Quick Access --}}
-            <div class="mt-10 bg-white shadow  p-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+
+            {{-- QUICK ACTION PANEL --}}
+            <div class="bg-white rounded-2xl shadow-sm border p-8">
+
+                <h3 class="text-lg font-semibold text-gray-800 mb-6">
                     Quick Menu
                 </h3>
 
-                <div class="flex flex-col gap-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                     <a href="{{ route('admin.item-master.index') }}"
-                        class="px-4 py-3 rounded bg-gray-100 hover:bg-gray-200 transition">
-                        Manage Item Master
+                        class="group p-6 rounded-xl border hover:bg-gray-50 transition flex justify-between items-center">
+
+                        <div>
+                            <div class="font-semibold text-gray-800">
+                                Manage Item Master
+                            </div>
+                            <div class="text-sm text-gray-500 mt-1">
+                                Lihat dan sync data stock dari Excel
+                            </div>
+                        </div>
+
+                        <div class="text-gray-400 group-hover:translate-x-1 transition">
+                            →
+                        </div>
+
                     </a>
+
 
                     @if (Route::has('admin.stock.index'))
                         <a href="{{ route('admin.stock.index') }}"
-                            class="px-4 py-3 rounded bg-gray-100 hover:bg-gray-200 transition">
-                            Stock Transaction Requests
+                            class="group p-6 rounded-xl border hover:bg-gray-50 transition flex justify-between items-center">
+
+                            <div>
+                                <div class="font-semibold text-gray-800">
+                                    Stock Transaction Requests
+                                </div>
+                                <div class="text-sm text-gray-500 mt-1">
+                                    Approve atau reject permintaan barang
+                                </div>
+                            </div>
+
+                            <div class="text-gray-400 group-hover:translate-x-1 transition">
+                                →
+                            </div>
+
                         </a>
                     @else
-                        <a href="#"
-                            class="px-4 py-3 rounded bg-gray-100 opacity-50 cursor-not-allowed transition"
-                            aria-disabled="true">
-                            Stock Transaction Requests
-                        </a>
+                        <div class="p-6 rounded-xl border bg-gray-50 opacity-60 cursor-not-allowed">
+                            <div class="font-semibold text-gray-500">
+                                Stock Transaction Requests
+                            </div>
+                            <div class="text-sm text-gray-400 mt-1">
+                                Module belum tersedia
+                            </div>
+                        </div>
                     @endif
 
                 </div>
+
             </div>
 
         </div>
     </div>
+
 </x-app-layout>

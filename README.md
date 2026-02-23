@@ -108,6 +108,7 @@ npm install
 ### 9. Start Server
 
 ```bash
+npn run build
 npm run dev
 php artisan serve
 
