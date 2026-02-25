@@ -18,8 +18,6 @@
 /storage/*.key
 /storage/pail
 /vendor
-composer.json
-package.json
 Homestead.json
 Homestead.yaml
 Thumbs.db
