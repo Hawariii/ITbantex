@@ -10,10 +10,10 @@ return new class extends Migration {
             $table->id();
 
             $table->foreignId('item_id')
-                ->constrained('items')
+                ->constrained('item_master')
                 ->cascadeOnDelete();
 
-            $table->integer('qty');
+            $table->integer('quantity');
 
             $table->enum('type', ['out', 'in'])->default('out');
 
