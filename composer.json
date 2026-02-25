@@ -11,6 +11,7 @@
         "laravel/tinker": "^2.10.1",
         "maatwebsite/excel": "3.1.65",
         "phpoffice/phpspreadsheet": "^1.30",
+        "maennchen/zipstream-php": "^3.1",
         "ext-mbstring": "*",
         "ext-zip": "*",
         "ext-gd": "*",
