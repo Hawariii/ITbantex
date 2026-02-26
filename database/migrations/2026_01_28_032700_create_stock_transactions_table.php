@@ -11,7 +11,7 @@ return new class extends Migration {
 
             $table->foreignId('item_id')
                 ->constrained('item_masters')
-                ->cascadeOnDelete();
+                ->OnDelete('cascade');
 
             $table->integer('quantity');
 
