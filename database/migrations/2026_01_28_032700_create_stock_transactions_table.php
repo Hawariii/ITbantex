@@ -10,7 +10,7 @@ return new class extends Migration {
             $table->id();
 
             $table->foreignId('item_id')
-                ->constrained('item_master')
+                ->constrained('item_masters')
                 ->cascadeOnDelete();
 
             $table->integer('quantity');
