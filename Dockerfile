@@ -1,14 +1,18 @@
 FROM php:8.2-fpm
 
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
+    curl \
     libzip-dev \
     libpng-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
     libonig-dev \
-    libxml2-dev
+    libxml2-dev \
+    nodejs \
+    npm
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl gd
@@ -19,6 +23,13 @@ WORKDIR /var/www
 
 COPY . .
 
+# Install PHP deps
 RUN composer install --no-dev --optimize-autoloader
 
-CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT}
+# Install Node deps
+RUN npm install
+
+# Build Vite assets
+RUN npm run build
+
+CMD php artisan serve --host=0.0.0.0 --port=${PORT}
